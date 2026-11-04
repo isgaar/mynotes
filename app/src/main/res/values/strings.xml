@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">IotasLife</string>
+
+    <!-- Navigation & Titles -->
+    <string name="nav_bitacora">Bitácora</string>
+    <string name="nav_pendientes">Pendientes</string>
+    <string name="organizations_title">Organizaciones</string>
+    <string name="select_organization">Seleccionar Organización</string>
+    <string name="no_organization_selected">Sin Organización seleccionada</string>
+    <string name="create_first_organization">Crea tu primera organización para comenzar</string>
+    <string name="switch_organization">Cambiar organización</string>
+    <string name="new_organization">Nueva Organización</string>
+    <string name="edit_organization">Editar Organización</string>
+    <string name="organization_name">Nombre de la Organización (Empresa)</string>
+    <string name="organization_name_hint">Ej. Acme Corp, Dpto. Sistemas</string>
+    <string name="organization_desc">Descripción o Área</string>
+    <string name="organization_desc_hint">Ej. Infraestructura Cloud, Desarrollo Móvil</string>
+    <string name="active_badge">Activa</string>
+
+    <!-- Bitacora / Tickets -->
+    <string name="bitacora_title">Bitácora de Trabajo</string>
+    <string name="bitacora_subtitle">Documentación diaria y tickets de actividad</string>
+    <string name="new_bitacora_entry">Nuevo Registro</string>
+    <string name="edit_bitacora_entry">Editar Registro</string>
+    <string name="bitacora_detail">Detalle de Registro</string>
+    <string name="ticket_code">Código de Ticket</string>
+    <string name="ticket_code_hint">Ej. TIK-204</string>
+    <string name="ticket_title">Título del Ticket / Actividad</string>
+    <string name="ticket_title_hint">Ej. Mantenimiento del servidor de base de datos</string>
+    <string name="ticket_date">Fecha</string>
+    <string name="ticket_status">Estado</string>
+    <string name="work_done_section">Lo que se hizo ese día</string>
+    <string name="work_done_hint">Describe detalladamente las tareas realizadas hoy…</string>
+    <string name="observations_section">Observaciones</string>
+    <string name="observations_hint">Imprevistos, notas técnicas o advertencias…</string>
+    <string name="actions_taken_section">Acciones realizadas</string>
+    <string name="actions_taken_hint">Pasos concretos, comandos o soluciones aplicadas…</string>
+    <string name="empty_bitacora_title">Sin registros aún</string>
+    <string name="empty_bitacora_subtitle">Comienza a registrar tu bitácora diaria presionando el botón inferior.</string>
+    <string name="search_bitacora_hint">Buscar registros por título o ticket…</string>
+
+    <!-- Status labels -->
+    <string name="status_in_progress">En Progreso</string>
+    <string name="status_completed">Completado</string>
+    <string name="status_blocked">Bloqueado</string>
+    <string name="status_review">En Revisión</string>
+
+    <!-- Pendientes / Tasks -->
+    <string name="tasks_title">Tareas Pendientes</string>
+    <string name="tasks_subtitle">Gestión rápida de pendientes y compromisos</string>
+    <string name="new_task">Nuevo Pendiente</string>
+    <string name="edit_task">Editar Pendiente</string>
+    <string name="task_title">Título del pendiente</string>
+    <string name="task_title_hint">Ej. Enviar reporte semanal al gerente</string>
+    <string name="task_desc">Descripción o detalles</string>
+    <string name="task_desc_hint">Detalles opcionales…</string>
+    <string name="task_priority">Prioridad</string>
+    <string name="priority_low">Baja</string>
+    <string name="priority_medium">Media</string>
+    <string name="priority_high">Alta</string>
+    <string name="empty_tasks_title">No hay pendientes</string>
+    <string name="empty_tasks_subtitle">Todo está al día o crea un nuevo pendiente para organizarte.</string>
+    <string name="pending_filter_all">Todos (%d)</string>
+    <string name="pending_filter_pending">Pendientes (%d)</string>
+    <string name="pending_filter_completed">Finalizados (%d)</string>
+
+    <!-- Common Actions & Buttons -->
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_create">Crear</string>
+    <string name="action_confirm">Confirmar</string>
+
+    <!-- Dialogs & Confirmations -->
+    <string name="delete_confirm_title">¿Eliminar registro?</string>
+    <string name="delete_confirm_msg">Esta acción no se puede deshacer. Se eliminará permanentemente.</string>
+    <string name="delete_org_confirm_title">¿Eliminar organización?</string>
+    <string name="delete_org_confirm_msg">Se eliminarán todos los registros de bitácora y pendientes asociados.</string>
+    <string name="validation_error_title">El título es obligatorio</string>
+    <string name="validation_error_work_done">Por favor indica lo que se hizo ese día</string>
+    <string name="validation_error_org_name">El nombre de la organización es obligatorio</string>
+
+    <!-- Feedback messages -->
+    <string name="msg_saved_successfully">Guardado correctamente</string>
+    <string name="msg_updated_successfully">Actualizado correctamente</string>
+    <string name="msg_deleted_successfully">Eliminado correctamente</string>
+
+    <!-- Notion / Iotas Stats -->
+    <string name="stat_total_entries">Registros</string>
+    <string name="stat_pending_tasks">Pendientes</string>
+    <string name="stat_completed_tasks">Finalizadas</string>
+</resources>

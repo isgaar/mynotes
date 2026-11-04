@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF111111</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="notion_dark">#FF1F1F1F</color>
+    <color name="notion_light_bg">#FFF7F6F3</color>
+    <color name="notion_gray_subtle">#FF8F8E8B</color>
+    <color name="notion_border">#FFE0DED9</color>
+
+    <!-- Tag pastels -->
+    <color name="tag_blue_bg">#FFEBF5FB</color>
+    <color name="tag_blue_text">#FF1F78B4</color>
+    <color name="tag_green_bg">#FFEAF7EE</color>
+    <color name="tag_green_text">#FF2E7D32</color>
+    <color name="tag_yellow_bg">#FFFDF6E2</color>
+    <color name="tag_yellow_text">#FFB78103</color>
+    <color name="tag_red_bg">#FFFDECEB</color>
+    <color name="tag_red_text">#FFC62828</color>
+</resources>
