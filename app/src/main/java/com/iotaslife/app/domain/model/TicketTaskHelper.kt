@@ -51,3 +51,4 @@ object TicketTaskHelper {
         return description.replace(TICKET_TAG_REGEX, "").trim()
     }
 }
+
