@@ -17,7 +17,7 @@ import com.iotaslife.app.data.local.entity.TaskEntity
         BitacoraEntity::class,
         TaskEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

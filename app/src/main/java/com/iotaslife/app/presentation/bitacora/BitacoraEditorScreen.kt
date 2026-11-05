@@ -1,6 +1,9 @@
 package com.iotaslife.app.presentation.bitacora
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,11 +19,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.Button
@@ -30,6 +36,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -57,8 +64,10 @@ import com.iotaslife.app.R
 import com.iotaslife.app.domain.model.BitacoraEntry
 import com.iotaslife.app.domain.model.BitacoraStatus
 import com.iotaslife.app.presentation.components.ConfirmDeleteDialog
+import com.iotaslife.app.presentation.components.EvidenceThumbnail
 import com.iotaslife.app.presentation.theme.NotionBorder
 import com.iotaslife.app.presentation.theme.NotionRed
+import com.iotaslife.app.presentation.util.ImageStorageManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -82,6 +91,7 @@ fun BitacoraEditorScreen(
     var actionsTaken by remember { mutableStateOf(entry?.actionsTaken ?: "") }
     var status by remember { mutableStateOf(entry?.status ?: BitacoraStatus.IN_PROGRESS) }
     var dateEpochMillis by remember { mutableLongStateOf(entry?.dateEpochMillis ?: System.currentTimeMillis()) }
+    var imagePaths by remember { mutableStateOf(entry?.imagePaths ?: emptyList()) }
 
     var titleError by remember { mutableStateOf(false) }
     var workDoneError by remember { mutableStateOf(false) }
@@ -96,6 +106,31 @@ fun BitacoraEditorScreen(
     val msgBitacoraSaved = stringResource(id = R.string.msg_bitacora_saved)
     val msgBitacoraUpdated = stringResource(id = R.string.msg_bitacora_updated)
     val msgBitacoraDeleted = stringResource(id = R.string.msg_bitacora_deleted)
+
+    // Photo picker for evidence images (saves locally in app private storage)
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia()
+    ) { uris ->
+        if (uris.isNotEmpty()) {
+            scope.launch {
+                val newPaths = mutableListOf<String>()
+                for (uri in uris) {
+                    val saved = ImageStorageManager.saveImageFromUri(context, uri)
+                    if (saved != null) {
+                        newPaths.add(saved)
+                    }
+                }
+                if (newPaths.isNotEmpty()) {
+                    imagePaths = imagePaths + newPaths
+                    Toast.makeText(
+                        context,
+                        "${newPaths.size} evidencia(s) agregada(s)",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -166,8 +201,8 @@ fun BitacoraEditorScreen(
                                     observations = observations,
                                     actionsTaken = actionsTaken,
                                     status = status,
+                                    imagePaths = imagePaths,
                                     onComplete = {
-                                        // Material You / Android Toast feedback
                                         Toast.makeText(
                                             context,
                                             if (isNew) msgBitacoraSaved else msgBitacoraUpdated,
@@ -203,9 +238,7 @@ fun BitacoraEditorScreen(
             // Meta card: Ticket code, Date & Status
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
@@ -397,6 +430,75 @@ fun BitacoraEditorScreen(
                             unfocusedBorderColor = NotionBorder
                         )
                     )
+                }
+            }
+
+            // Section 4: Evidencias Fotográficas (Guardado Privado)
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = R.string.evidence_section_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = stringResource(id = R.string.evidence_section_hint),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                photoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            },
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AddPhotoAlternate,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = stringResource(id = R.string.action_add_evidence), fontSize = 12.sp)
+                        }
+                    }
+
+                    if (imagePaths.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(imagePaths, key = { it }) { path ->
+                                EvidenceThumbnail(
+                                    filePath = path,
+                                    size = 90.dp,
+                                    onDelete = {
+                                        scope.launch {
+                                            ImageStorageManager.deleteImage(path)
+                                            imagePaths = imagePaths.filter { it != path }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

@@ -154,5 +154,32 @@ class BitacoraCrudInstrumentedTest {
         val tasksAfterDelete = taskRepo.getTasksForOrganization(orgId).first()
         assertTrue(tasksAfterDelete.isEmpty())
     }
+
+    @Test
+    fun testBitacoraWithImageEvidence() = runBlocking {
+        val orgId = orgRepo.insertOrganization(
+            Organization(name = "Evidence Org", description = "Test", iconEmoji = "📸")
+        )
+        val imageList = listOf(
+            "/data/user/0/com.iotaslife.app/files/evidence_images/evidence_1.jpg",
+            "/data/user/0/com.iotaslife.app/files/evidence_images/evidence_2.jpg"
+        )
+        val entry = BitacoraEntry(
+            organizationId = orgId,
+            ticketCode = "TIK-IMG",
+            title = "Inspección física de servidores",
+            dateEpochMillis = System.currentTimeMillis(),
+            workDone = "Reemplazo de cables de fibra óptica.",
+            observations = "Fotografías tomadas antes y después.",
+            actionsTaken = "Fotos anexadas como evidencia interna.",
+            status = BitacoraStatus.COMPLETED,
+            imagePaths = imageList
+        )
+        val id = bitacoraRepo.insertEntry(entry)
+        val retrieved = bitacoraRepo.getEntryById(id)
+        assertNotNull(retrieved)
+        assertEquals(2, retrieved?.imagePaths?.size)
+        assertEquals(imageList, retrieved?.imagePaths)
+    }
 }
 

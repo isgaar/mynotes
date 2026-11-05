@@ -10,7 +10,7 @@ data class BitacoraEntry(
     val observations: String,
     val actionsTaken: String,
     val status: BitacoraStatus = BitacoraStatus.IN_PROGRESS,
+    val imagePaths: List<String> = emptyList(),
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
-

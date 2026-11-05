@@ -33,6 +33,7 @@ data class BitacoraEntity(
     val observations: String,
     val actionsTaken: String,
     val statusName: String,
+    val imagePathsString: String = "",
     val createdAt: Long,
     val updatedAt: Long
 ) {
@@ -41,6 +42,11 @@ data class BitacoraEntity(
             BitacoraStatus.valueOf(statusName)
         } catch (_: Exception) {
             BitacoraStatus.IN_PROGRESS
+        }
+        val imageList = if (imagePathsString.isBlank()) {
+            emptyList()
+        } else {
+            imagePathsString.split(";;;").filter { it.isNotBlank() }
         }
         return BitacoraEntry(
             id = id,
@@ -52,6 +58,7 @@ data class BitacoraEntity(
             observations = observations,
             actionsTaken = actionsTaken,
             status = status,
+            imagePaths = imageList,
             createdAt = createdAt,
             updatedAt = updatedAt
         )
@@ -68,9 +75,9 @@ data class BitacoraEntity(
             observations = domain.observations,
             actionsTaken = domain.actionsTaken,
             statusName = domain.status.name,
+            imagePathsString = domain.imagePaths.joinToString(";;;"),
             createdAt = domain.createdAt,
             updatedAt = domain.updatedAt
         )
     }
 }
-

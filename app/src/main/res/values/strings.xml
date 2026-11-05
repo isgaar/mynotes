@@ -37,7 +37,15 @@
     <string name="actions_taken_hint">Pasos concretos, comandos o soluciones aplicadas…</string>
     <string name="empty_bitacora_title">Sin registros aún</string>
     <string name="empty_bitacora_subtitle">Comienza a registrar tu bitácora diaria presionando el botón inferior.</string>
-    <string name="search_bitacora_hint">Buscar registros por título o ticket…</string>
+    <string name="search_bitacora_hint">Buscar registros por fecha, título o detalle…</string>
+
+    <!-- Evidence / Images -->
+    <string name="evidence_section_title">Evidencias fotográficas</string>
+    <string name="evidence_section_hint">Las imágenes se guardan exclusivamente en el almacenamiento interno de la app (no se duplican en la galería).</string>
+    <string name="action_add_evidence">Adjuntar imagen</string>
+    <string name="export_excel_action">Exportar a Excel</string>
+    <string name="filter_today">Hoy</string>
+    <string name="filter_all">Todos</string>
 
     <!-- Status labels -->
     <string name="status_in_progress">En Progreso</string>
@@ -92,6 +100,9 @@
     <string name="msg_task_completed">Pendiente marcado como completado</string>
     <string name="msg_task_pending">Pendiente marcado como activo</string>
     <string name="msg_org_created">Organización creada exitosamente</string>
+    <string name="msg_exporting_excel">Generando archivo Excel...</string>
+    <string name="msg_exported_success">Exportado a Excel exitosamente</string>
+    <string name="msg_no_entries_to_export">No hay registros para exportar</string>
 
     <!-- Notion / Iotas Stats -->
     <string name="stat_total_entries">Registros</string>

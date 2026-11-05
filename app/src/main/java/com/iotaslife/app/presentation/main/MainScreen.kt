@@ -131,6 +131,7 @@ fun MainScreen(
                     if (mainUiState.selectedTab == 0) {
                         BitacoraListScreen(
                             viewModel = bitacoraViewModel,
+                            organization = mainUiState.selectedOrg,
                             onAddEntry = {
                                 currentScreen = CurrentScreen.BitacoraEditor(null)
                             },
