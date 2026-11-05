@@ -12,5 +12,11 @@
 *.dex
 app/build/
 build/
+device_backup/
+evidence_images/
+*.jpg
+*.jpeg
+*.png
+*.webp
 
 .kotlin/

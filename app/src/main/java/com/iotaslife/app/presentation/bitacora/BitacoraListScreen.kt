@@ -1,10 +1,11 @@
 // File: app/src/main/java/com/iotaslife/app/presentation/bitacora/BitacoraListScreen.kt
-// Description: Main bitacora list screen displaying work log tickets, search bar, date filters, Excel export trigger, and floating add action.
+// Description: Main bitacora list screen displaying skeuomorphic notepad ticket cards, pending activities, search, date filters, and Excel export.
 // All Rights Reserved isgaar
 
 package com.iotaslife.app.presentation.bitacora
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,15 +24,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.EventNote
+import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.AssignmentLate
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Image
@@ -46,6 +50,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -63,6 +68,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,9 +76,16 @@ import com.iotaslife.app.R
 import com.iotaslife.app.domain.model.BitacoraEntry
 import com.iotaslife.app.domain.model.BitacoraStatus
 import com.iotaslife.app.domain.model.Organization
+import com.iotaslife.app.domain.model.TaskItem
+import com.iotaslife.app.domain.model.TicketTaskHelper
+import com.iotaslife.app.domain.model.TicketTaskHelper.isLinkedToTicket
 import com.iotaslife.app.presentation.components.ConfirmDeleteDialog
 import com.iotaslife.app.presentation.components.EvidenceThumbnail
+import com.iotaslife.app.presentation.components.NotepadSheetCard
+import com.iotaslife.app.presentation.components.QuickAddTicketTaskDialog
 import com.iotaslife.app.presentation.components.StatusChip
+import com.iotaslife.app.presentation.components.TicketTaskChecklistItem
+import com.iotaslife.app.presentation.tasks.TasksViewModel
 import com.iotaslife.app.presentation.theme.NotionBlue
 import com.iotaslife.app.presentation.theme.NotionBorder
 import com.iotaslife.app.presentation.theme.NotionDivider
@@ -84,6 +97,7 @@ import kotlinx.coroutines.launch
 fun BitacoraListScreen(
     viewModel: BitacoraViewModel,
     organization: Organization? = null,
+    tasksViewModel: TasksViewModel? = null,
     onAddEntry: () -> Unit,
     onEditEntry: (BitacoraEntry) -> Unit,
     modifier: Modifier = Modifier
@@ -92,10 +106,17 @@ fun BitacoraListScreen(
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
     var entryToDelete by remember { mutableStateOf<BitacoraEntry?>(null) }
+    var entryForQuickTask by remember { mutableStateOf<BitacoraEntry?>(null) }
+
+    // Observe tasks for ticket task indicators
+    val tasksState = tasksViewModel?.uiState?.collectAsState()
+    val allTasks = tasksState?.value?.tasks ?: emptyList()
+
     val msgDeleted = stringResource(id = R.string.msg_bitacora_deleted)
     val msgNoEntries = stringResource(id = R.string.msg_no_entries_to_export)
     val msgExporting = stringResource(id = R.string.msg_exporting_excel)
     val msgExportSuccess = stringResource(id = R.string.msg_exported_success)
+    val msgTaskCreated = stringResource(id = R.string.msg_ticket_task_created)
 
     fun exportToExcel() {
         val targetList = if (uiState.entries.isNotEmpty()) uiState.entries else uiState.rawEntries
@@ -297,14 +318,24 @@ fun BitacoraListScreen(
             } else {
                 LazyColumn(
                     contentPadding = PaddingValues(bottom = 80.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     items(uiState.entries, key = { it.id }) { entry ->
+                        val ticketTasks = allTasks.filter { it.isLinkedToTicket(entry.ticketCode) }
+
                         BitacoraCard(
                             entry = entry,
+                            linkedTasks = ticketTasks,
                             onEdit = { onEditEntry(entry) },
-                            onDelete = { entryToDelete = entry }
+                            onDelete = { entryToDelete = entry },
+                            onQuickAddTask = { entryForQuickTask = entry },
+                            onToggleTask = { task ->
+                                tasksViewModel?.toggleCompleted(task)
+                            },
+                            onDeleteTask = { task ->
+                                tasksViewModel?.deleteTask(task)
+                            }
                         )
                     }
                 }
@@ -328,6 +359,7 @@ fun BitacoraListScreen(
         }
     }
 
+    // Delete Confirmation Dialog
     entryToDelete?.let { entry ->
         ConfirmDeleteDialog(
             title = stringResource(id = R.string.delete_confirm_title),
@@ -341,25 +373,49 @@ fun BitacoraListScreen(
             onDismiss = { entryToDelete = null }
         )
     }
+
+    // Quick Add Ticket Task Dialog
+    entryForQuickTask?.let { entry ->
+        QuickAddTicketTaskDialog(
+            ticketCode = entry.ticketCode,
+            ticketTitle = entry.title,
+            onConfirm = { title, priority ->
+                tasksViewModel?.saveTask(
+                    organizationId = entry.organizationId,
+                    title = title,
+                    description = TicketTaskHelper.formatDescriptionWithTicket(entry.ticketCode, ""),
+                    priority = priority,
+                    onComplete = {
+                        Toast.makeText(context, msgTaskCreated, Toast.LENGTH_SHORT).show()
+                    }
+                )
+                entryForQuickTask = null
+            },
+            onDismiss = { entryForQuickTask = null }
+        )
+    }
 }
 
 @Composable
 fun BitacoraCard(
     entry: BitacoraEntry,
+    linkedTasks: List<TaskItem> = emptyList(),
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onQuickAddTask: () -> Unit,
+    onToggleTask: (TaskItem) -> Unit = {},
+    onDeleteTask: (TaskItem) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        modifier = modifier
-            .fillMaxWidth()
-            .border(1.dp, NotionBorder, RoundedCornerShape(14.dp))
-            .clickable { onEdit() }
+    var expandedTasks by remember { mutableStateOf(false) }
+    val pendingTasksCount = linkedTasks.count { !it.isCompleted }
+
+    NotepadSheetCard(
+        hasSpiral = true,
+        modifier = modifier.clickable { onEdit() }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Header: Ticket Code + Date + Status
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Header: Ticket Code Badge + Date + Status Chip
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -369,20 +425,20 @@ fun BitacoraCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Ticket code badge
+                    // Ticket code stamped badge
                     Box(
                         modifier = Modifier
                             .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
+                                MaterialTheme.colorScheme.primaryContainer,
                                 RoundedCornerShape(6.dp)
                             )
-                            .padding(horizontal = 7.dp, vertical = 3.dp)
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = entry.ticketCode,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
 
@@ -410,7 +466,7 @@ fun BitacoraCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Work done section
+            // Work done section (Lo que se hizo ese día)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
@@ -418,7 +474,7 @@ fun BitacoraCard(
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.Assignment,
                     contentDescription = null,
-                    tint = NotionBlue,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(16.dp)
                         .padding(top = 2.dp)
@@ -450,7 +506,7 @@ fun BitacoraCard(
                     Icon(
                         imageVector = Icons.Outlined.Build,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier
                             .size(16.dp)
                             .padding(top = 2.dp)
@@ -483,7 +539,7 @@ fun BitacoraCard(
                     Icon(
                         imageVector = Icons.Outlined.Visibility,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier
                             .size(16.dp)
                             .padding(top = 2.dp)
@@ -502,6 +558,68 @@ fun BitacoraCard(
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
+                    }
+                }
+            }
+
+            // Linked Pending Tasks Section (Sticky Note strip on card)
+            if (linkedTasks.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            if (pendingTasksCount > 0) MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                            else MaterialTheme.colorScheme.surfaceVariant
+                        )
+                        .clickable { expandedTasks = !expandedTasks }
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Outlined.AssignmentLate,
+                            contentDescription = null,
+                            tint = if (pendingTasksCount > 0) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (pendingTasksCount > 0) {
+                                stringResource(id = R.string.linked_pending_count, pendingTasksCount)
+                            } else {
+                                stringResource(id = R.string.stat_completed_tasks)
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    Text(
+                        text = if (expandedTasks) "Ocultar" else "Ver (${linkedTasks.size})",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                AnimatedVisibility(visible = expandedTasks) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        linkedTasks.forEach { task ->
+                            TicketTaskChecklistItem(
+                                task = task,
+                                onToggle = { onToggleTask(task) },
+                                onDelete = { onDeleteTask(task) }
+                            )
+                        }
                     }
                 }
             }
@@ -550,37 +668,57 @@ fun BitacoraCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Action buttons row: Edit & Delete
+            // Action buttons row: Quick + Pendiente button & Edit/Delete actions
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = onEdit,
-                    modifier = Modifier.size(36.dp)
+                // Quick add pending task button directly on card
+                OutlinedButton(
+                    onClick = onQuickAddTask,
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                    modifier = Modifier.height(32.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(id = R.string.action_edit),
-                        tint = NotionBlue,
-                        modifier = Modifier.size(18.dp)
+                        imageVector = Icons.AutoMirrored.Outlined.PlaylistAdd,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(id = R.string.action_quick_add_pending),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DeleteOutline,
-                        contentDescription = stringResource(id = R.string.action_delete),
-                        tint = NotionRed,
-                        modifier = Modifier.size(18.dp)
-                    )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = onEdit,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(id = R.string.action_edit),
+                            tint = NotionBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DeleteOutline,
+                            contentDescription = stringResource(id = R.string.action_delete),
+                            tint = NotionRed,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
         }
     }
 }
-
-

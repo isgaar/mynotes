@@ -49,7 +49,13 @@ Aplicacion Android moderna de registro de bitacora laboral, gestion de tickets y
 
 ## Diseno y Experiencia de Usuario
 
-- **Material You (Dynamic Colors)**: Compatible con temas dinamicos en Android 12+ (SDK 31+) adaptados a la paleta del sistema del usuario, con degradados y colores Notion de respaldo en versiones previas.
+- **Material You (Dynamic Colors) & Esquemorfismo Evolucionado**:
+  - Combinacion de elementos esquemorficos clasicos de un bloc de notas fisico (anillas metalicas en espiral, borde perforado de desgarre, papel pautado con lineas y margen vertical, tarjetas de nota adhesiva post-it con cinta adhesiva) con la armonia moderna de Dynamic Colors (Material You) en Android 12+ (SDK 31+) y respaldo en paleta Notion.
+- **Pendientes Vinculados a la Bitacora**:
+  - Creacion directa de actividades pendientes por completar o revisar desde el editor de cada ticket de bitacora.
+  - Asistente de un clic para copiar texto de "Acciones realizadas" u "Observaciones" hacia un nuevo pendiente.
+  - Boton de accion rapida `+ Pendiente` en las tarjetas de bitacora del listado principal.
+  - Indicadores y sellos de ticket (`[TIK-XXXX]`) en la pantalla de pendientes para trazabilidad total.
 - **Retroalimentacion Toast**: Confirmaciones inmediatas para operaciones de guardado, actualizacion, eliminacion y exportacion.
 - **Clean Architecture & Clean Code**:
   - `domain`: Modelos inmutables (`Organization`, `BitacoraEntry`, `TaskItem`) y contratos de repositorio.

@@ -69,7 +69,8 @@ fun MainScreen(
                 organizationId = mainUiState.selectedOrg?.id ?: 1L,
                 onSaveSuccess = { currentScreen = CurrentScreen.Main },
                 onBack = { currentScreen = CurrentScreen.Main },
-                viewModel = bitacoraViewModel
+                viewModel = bitacoraViewModel,
+                tasksViewModel = tasksViewModel
             )
         }
         CurrentScreen.Main -> {
@@ -136,6 +137,7 @@ fun MainScreen(
                         BitacoraListScreen(
                             viewModel = bitacoraViewModel,
                             organization = mainUiState.selectedOrg,
+                            tasksViewModel = tasksViewModel,
                             onAddEntry = {
                                 currentScreen = CurrentScreen.BitacoraEditor(null)
                             },

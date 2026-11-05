@@ -1,5 +1,5 @@
 // File: app/src/main/java/com/iotaslife/app/presentation/tasks/TasksScreen.kt
-// Description: Main tasks management screen featuring Notion-style animated checkboxes, category tabs, and priority indicators.
+// Description: Main tasks screen featuring skeuomorphic checklist styling, ticket badge indicators, and animated Notion checkboxes.
 // All Rights Reserved isgaar
 
 package com.iotaslife.app.presentation.tasks
@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -33,9 +32,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +48,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -59,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iotaslife.app.R
 import com.iotaslife.app.domain.model.TaskItem
+import com.iotaslife.app.domain.model.TicketTaskHelper.getCleanDescription
+import com.iotaslife.app.domain.model.TicketTaskHelper.getLinkedTicketCode
 import com.iotaslife.app.presentation.components.ConfirmDeleteDialog
 import com.iotaslife.app.presentation.components.PriorityChip
 import com.iotaslife.app.presentation.theme.NotionBlue
@@ -214,7 +217,7 @@ fun TasksScreen(
             } else {
                 LazyColumn(
                     contentPadding = PaddingValues(bottom = 80.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     items(uiState.tasks, key = { it.id }) { task ->
@@ -320,20 +323,40 @@ fun TaskItemCard(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDark = MaterialTheme.colorScheme.surface.red < 0.5f
+    val linkedTicket = task.getLinkedTicketCode()
+    val cleanDesc = task.getCleanDescription()
+
+    val surfaceColor = if (isDark) {
+        MaterialTheme.colorScheme.surface
+    } else {
+        Color(0xFFFAFAF7) // Ivory paper card
+    }
+
     Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = surfaceColor),
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, NotionBorder, RoundedCornerShape(12.dp))
+            .shadow(
+                elevation = 2.dp,
+                shape = RoundedCornerShape(14.dp),
+                ambientColor = Color.Black.copy(alpha = 0.15f),
+                spotColor = Color.Black.copy(alpha = 0.2f)
+            )
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                RoundedCornerShape(14.dp)
+            )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Notion-style checkbox
+            // Notion-style tactile checkbox
             Box(
                 modifier = Modifier
                     .size(24.dp)
@@ -343,7 +366,7 @@ fun TaskItemCard(
                     )
                     .border(
                         width = if (task.isCompleted) 0.dp else 1.5.dp,
-                        color = if (task.isCompleted) Color.Transparent else NotionBorder,
+                        color = if (task.isCompleted) Color.Transparent else MaterialTheme.colorScheme.onSurfaceVariant,
                         shape = RoundedCornerShape(6.dp)
                     )
                     .clickable { onToggle() },
@@ -361,7 +384,7 @@ fun TaskItemCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Task info
+            // Task content & ticket origin badge
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -372,23 +395,48 @@ fun TaskItemCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = if (task.isCompleted) FontWeight.Normal else FontWeight.Medium,
                     textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None,
-                    color = if (task.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    color = if (task.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    else MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                if (task.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = task.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                // If linked to a ticket, display ticket origin badge
+                if (linkedTicket != null || cleanDesc.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        if (linkedTicket != null) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(MaterialTheme.colorScheme.primaryContainer)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = linkedTicket,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+
+                        if (cleanDesc.isNotBlank()) {
+                            Text(
+                                text = cleanDesc,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 PriorityChip(priority = task.priority)
             }
 
@@ -419,4 +467,3 @@ fun TaskItemCard(
         }
     }
 }
-

@@ -108,4 +108,19 @@
     <string name="stat_total_entries">Registros</string>
     <string name="stat_pending_tasks">Pendientes</string>
     <string name="stat_completed_tasks">Finalizadas</string>
+
+    <!-- Skeuomorphic Notepad & Ticket-Linked Tasks -->
+    <string name="section_ticket_tasks_title">Actividades Pendientes y por Revisar</string>
+    <string name="section_ticket_tasks_subtitle">Bloc de pendientes derivados de esta bitacora</string>
+    <string name="ticket_tasks_empty">No hay actividades pendientes para este ticket</string>
+    <string name="action_add_ticket_task">Agregar a Pendientes</string>
+    <string name="hint_ticket_task_input">Actividad que falta por revisar o completar...</string>
+    <string name="from_actions_taken_chip">Copiar de acciones realizadas</string>
+    <string name="from_observations_chip">Copiar de observaciones</string>
+    <string name="badge_linked_ticket">Ticket Vinculado</string>
+    <string name="linked_pending_count">%d por revisar</string>
+    <string name="action_quick_add_pending">+ Pendiente</string>
+    <string name="quick_add_pending_dialog_title">Crear actividad pendiente</string>
+    <string name="notepad_sheet_header">Hoja de Bitacora</string>
+    <string name="msg_ticket_task_created">Pendiente vinculado al ticket creado</string>
 </resources>

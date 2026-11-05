@@ -1,5 +1,5 @@
 // File: app/src/main/java/com/iotaslife/app/presentation/bitacora/BitacoraEditorScreen.kt
-// Description: Editor screen for creating and updating bitacora entries with photo evidence attachment, validation, and Toast feedback.
+// Description: Skeuomorphic notepad editor screen for bitacora entries with ruled paper fields, photo evidence, and integrated ticket pending tasks.
 // All Rights Reserved isgaar
 
 package com.iotaslife.app.presentation.bitacora
@@ -30,9 +30,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -49,6 +52,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -67,8 +71,16 @@ import androidx.compose.ui.unit.sp
 import com.iotaslife.app.R
 import com.iotaslife.app.domain.model.BitacoraEntry
 import com.iotaslife.app.domain.model.BitacoraStatus
+import com.iotaslife.app.domain.model.TicketTaskHelper
+import com.iotaslife.app.domain.model.TicketTaskHelper.isLinkedToTicket
 import com.iotaslife.app.presentation.components.ConfirmDeleteDialog
 import com.iotaslife.app.presentation.components.EvidenceThumbnail
+import com.iotaslife.app.presentation.components.NotebookSpiralHeader
+import com.iotaslife.app.presentation.components.NotepadPaperField
+import com.iotaslife.app.presentation.components.NotepadSheetCard
+import com.iotaslife.app.presentation.components.PerforatedTearEdge
+import com.iotaslife.app.presentation.components.TicketTasksSection
+import com.iotaslife.app.presentation.tasks.TasksViewModel
 import com.iotaslife.app.presentation.theme.NotionBorder
 import com.iotaslife.app.presentation.theme.NotionRed
 import com.iotaslife.app.presentation.util.ImageStorageManager
@@ -81,6 +93,7 @@ fun BitacoraEditorScreen(
     onSaveSuccess: () -> Unit,
     onBack: () -> Unit,
     viewModel: BitacoraViewModel,
+    tasksViewModel: TasksViewModel? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -110,6 +123,11 @@ fun BitacoraEditorScreen(
     val msgBitacoraSaved = stringResource(id = R.string.msg_bitacora_saved)
     val msgBitacoraUpdated = stringResource(id = R.string.msg_bitacora_updated)
     val msgBitacoraDeleted = stringResource(id = R.string.msg_bitacora_deleted)
+
+    // Reactive tasks list for this organization
+    val tasksState = tasksViewModel?.uiState?.collectAsState()
+    val allTasks = tasksState?.value?.tasks ?: emptyList()
+    val linkedTasks = allTasks.filter { it.isLinkedToTicket(ticketCode) }
 
     // Photo picker for evidence images (saves locally in app private storage)
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -222,7 +240,11 @@ fun BitacoraEditorScreen(
                                 contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         ) {
-                            Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(text = stringResource(id = R.string.action_save))
                         }
@@ -239,15 +261,12 @@ fun BitacoraEditorScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Meta card: Ticket code, Date & Status
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
+            // Skeuomorphic Notepad Folio Card: Ticket metadata & Status
+            NotepadSheetCard(hasSpiral = true) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -272,15 +291,11 @@ fun BitacoraEditorScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
                     Text(
                         text = stringResource(id = R.string.ticket_status),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-
-                    Spacer(modifier = Modifier.height(6.dp))
 
                     // Status Chips Selector
                     Row(
@@ -335,109 +350,64 @@ fun BitacoraEditorScreen(
                 )
             )
 
-            // Section 1: Lo que se hizo ese día (Work Done)
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        1.dp,
-                        if (workDoneError) NotionRed else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                        RoundedCornerShape(16.dp)
-                    )
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.work_done_section),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField(
-                        value = workDone,
-                        onValueChange = {
-                            workDone = it
-                            if (workDoneError && it.isNotBlank()) workDoneError = false
-                        },
-                        isError = workDoneError,
-                        placeholder = { Text(text = stringResource(id = R.string.work_done_hint)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(130.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = NotionBorder
+            // Section 1: Lo que se hizo ese día (Work Done on ruled notepad paper)
+            NotepadPaperField(
+                title = stringResource(id = R.string.work_done_section),
+                icon = Icons.AutoMirrored.Outlined.Assignment,
+                value = workDone,
+                onValueChange = {
+                    workDone = it
+                    if (workDoneError && it.isNotBlank()) workDoneError = false
+                },
+                placeholder = stringResource(id = R.string.work_done_hint),
+                isError = workDoneError,
+                height = 130.dp,
+                headerColor = MaterialTheme.colorScheme.primary
+            )
+
+            // Section 2: Acciones realizadas (Actions Taken on ruled notepad paper)
+            NotepadPaperField(
+                title = stringResource(id = R.string.actions_taken_section),
+                icon = Icons.Outlined.Build,
+                value = actionsTaken,
+                onValueChange = { actionsTaken = it },
+                placeholder = stringResource(id = R.string.actions_taken_hint),
+                height = 110.dp,
+                headerColor = MaterialTheme.colorScheme.secondary
+            )
+
+            // Section 3: Observaciones (Observations on ruled notepad paper)
+            NotepadPaperField(
+                title = stringResource(id = R.string.observations_section),
+                icon = Icons.Outlined.Visibility,
+                value = observations,
+                onValueChange = { observations = it },
+                placeholder = stringResource(id = R.string.observations_hint),
+                height = 110.dp,
+                headerColor = MaterialTheme.colorScheme.tertiary
+            )
+
+            // Section 4: NEW! Dedicated Sticky Note Section for Pending Activities linked to this ticket
+            if (tasksViewModel != null) {
+                TicketTasksSection(
+                    ticketCode = ticketCode,
+                    linkedTasks = linkedTasks,
+                    onToggleTask = { task -> tasksViewModel.toggleCompleted(task) },
+                    onDeleteTask = { task -> tasksViewModel.deleteTask(task) },
+                    onAddTask = { taskTitle, taskDesc, priority ->
+                        tasksViewModel.saveTask(
+                            organizationId = organizationId,
+                            title = taskTitle,
+                            description = TicketTaskHelper.formatDescriptionWithTicket(ticketCode, taskDesc),
+                            priority = priority
                         )
-                    )
-                }
+                    },
+                    candidateTextFromActions = actionsTaken,
+                    candidateTextFromObservations = observations
+                )
             }
 
-            // Section 2: Acciones realizadas (Actions Taken)
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.actions_taken_section),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField(
-                        value = actionsTaken,
-                        onValueChange = { actionsTaken = it },
-                        placeholder = { Text(text = stringResource(id = R.string.actions_taken_hint)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(110.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = NotionBorder
-                        )
-                    )
-                }
-            }
-
-            // Section 3: Observaciones (Observations)
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.observations_section),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField(
-                        value = observations,
-                        onValueChange = { observations = it },
-                        placeholder = { Text(text = stringResource(id = R.string.observations_hint)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(110.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = NotionBorder
-                        )
-                    )
-                }
-            }
-
-            // Section 4: Evidencias Fotográficas (Guardado Privado)
+            // Section 5: Evidencias Fotográficas (Guardado Privado)
             Card(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
