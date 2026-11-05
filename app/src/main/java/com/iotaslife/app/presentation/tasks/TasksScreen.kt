@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/tasks/TasksScreen.kt
+// Description: Main tasks management screen featuring Notion-style animated checkboxes, category tabs, and priority indicators.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.tasks
 
 import android.widget.Toast

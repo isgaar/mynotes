@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/main/MainActivity.kt
+// Description: Single activity host configuring Edge-to-Edge window insets and binding ViewModels to the root Compose tree.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.main
 
 import android.os.Bundle

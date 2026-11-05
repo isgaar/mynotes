@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/components/StatusChip.kt
+// Description: Composable component rendering a colored status badge for bitacora tickets based on their current lifecycle state.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.components
 
 import androidx.compose.foundation.background

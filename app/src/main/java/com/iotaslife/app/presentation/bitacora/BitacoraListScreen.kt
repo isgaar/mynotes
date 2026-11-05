@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/bitacora/BitacoraListScreen.kt
+// Description: Main bitacora list screen displaying work log tickets, search bar, date filters, Excel export trigger, and floating add action.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.bitacora
 
 import android.widget.Toast

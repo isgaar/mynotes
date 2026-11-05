@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/data/local/AppDatabase.kt
+// Description: Room database definition providing type-safe relational data access with automated destructive migration fallbacks.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.data.local
 
 import android.content.Context

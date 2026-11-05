@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/data/local/dao/OrganizationDao.kt
+// Description: Data access object providing Room SQL queries and reactive Flow emission for organizational workspaces.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.data.local.dao
 
 import androidx.room.Dao

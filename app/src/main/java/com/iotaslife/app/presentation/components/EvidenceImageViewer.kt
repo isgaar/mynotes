@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/components/EvidenceImageViewer.kt
+// Description: Composable components providing thumbnail rendering and full-screen preview dialogs for private image evidence.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.components
 
 import android.graphics.Bitmap

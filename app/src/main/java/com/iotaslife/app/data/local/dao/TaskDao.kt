@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/data/local/dao/TaskDao.kt
+// Description: Data access object providing Room SQL queries, completion status toggling, and CRUD operations for tasks.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.data.local.dao
 
 import androidx.room.Dao

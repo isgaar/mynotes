@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/theme/Theme.kt
+// Description: Material Theme configuration applying dynamic light and dark color schemes on Android 12+ with Notion fallback palettes.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.theme
 
 import android.app.Activity
@@ -67,7 +71,6 @@ fun IotasLifeTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as? Activity)?.window ?: return@SideEffect
-            window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }

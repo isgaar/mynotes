@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/tasks/TaskEditorDialog.kt
+// Description: Dialog component providing inputs for creating and editing tasks with priority selection and input validation.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.tasks
 
 import androidx.compose.foundation.background

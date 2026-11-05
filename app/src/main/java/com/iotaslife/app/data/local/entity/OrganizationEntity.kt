@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/data/local/entity/OrganizationEntity.kt
+// Description: Room entity mapping organizations to SQLite records with unique identification, metadata tags, and timestamp tracking.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.data.local.entity
 
 import androidx.room.Entity

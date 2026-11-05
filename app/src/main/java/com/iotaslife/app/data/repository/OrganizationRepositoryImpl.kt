@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/data/repository/OrganizationRepositoryImpl.kt
+// Description: Repository implementation encapsulating OrganizationDao operations and mapping between Room entities and domain models.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.data.repository
 
 import com.iotaslife.app.data.local.dao.OrganizationDao

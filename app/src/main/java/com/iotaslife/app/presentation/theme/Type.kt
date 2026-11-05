@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/theme/Type.kt
+// Description: Typography system configuring Material 3 text styles and font weights for clear technical document hierarchy.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.theme
 
 import androidx.compose.material3.Typography

@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/main/MainScreen.kt
+// Description: Root scaffold composable managing bottom navigation between Bitacora and Pendientes tabs and organization switching.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.main
 
 import android.widget.Toast

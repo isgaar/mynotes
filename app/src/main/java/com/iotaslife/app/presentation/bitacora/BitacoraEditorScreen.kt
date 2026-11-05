@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/bitacora/BitacoraEditorScreen.kt
+// Description: Editor screen for creating and updating bitacora entries with photo evidence attachment, validation, and Toast feedback.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.bitacora
 
 import android.widget.Toast

@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/bitacora/BitacoraViewModel.kt
+// Description: Reactive ViewModel managing bitacora state, real-time multi-field search, status filtering, and date query evaluation.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.bitacora
 
 import androidx.lifecycle.ViewModel

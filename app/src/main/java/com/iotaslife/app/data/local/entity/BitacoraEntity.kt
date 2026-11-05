@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/data/local/entity/BitacoraEntity.kt
+// Description: Room entity representing work log tickets with foreign key cascading delete on organization removal and index on ticket codes.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.data.local.entity
 
 import androidx.room.Entity

@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/components/NotionTopBar.kt
+// Description: Top application bar with active organization selector pill, clean typography, zero emojis, and workspace switcher.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.components
 
 import androidx.compose.foundation.background
@@ -70,12 +74,14 @@ fun NotionTopBar(
                     modifier = Modifier
                         .size(26.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = organization?.iconEmoji ?: "🏢",
-                        fontSize = 14.sp
+                    Icon(
+                        imageVector = Icons.Outlined.Business,
+                        contentDescription = null,
+                        modifier = Modifier.size(15.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
 
@@ -111,4 +117,3 @@ fun NotionTopBar(
         }
     }
 }
-

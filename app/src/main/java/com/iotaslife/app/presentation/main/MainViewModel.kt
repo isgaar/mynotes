@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/main/MainViewModel.kt
+// Description: Top-level ViewModel coordinating active organization selection, bottom bar navigation tabs, and workspace state.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.main
 
 import androidx.lifecycle.ViewModel

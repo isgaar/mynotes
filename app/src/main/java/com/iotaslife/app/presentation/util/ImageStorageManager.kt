@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/util/ImageStorageManager.kt
+// Description: Utility managing private internal image copying and downsampled bitmap loading without duplicating to public media galleries.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.util
 
 import android.content.Context

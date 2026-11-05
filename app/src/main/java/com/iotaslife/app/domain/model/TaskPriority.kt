@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/domain/model/TaskPriority.kt
+// Description: Enumeration representing task priority tiers with associated pastel background and label colors for Notion-style rendering.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.domain.model
 
 import androidx.annotation.StringRes

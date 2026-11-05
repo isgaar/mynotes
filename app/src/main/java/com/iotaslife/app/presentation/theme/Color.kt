@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/theme/Color.kt
+// Description: Color token definitions establishing the Notion-inspired and Material You palette used throughout the user interface.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.theme
 
 import androidx.compose.ui.graphics.Color

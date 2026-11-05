@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/util/ExcelExporter.kt
+// Description: Utility exporting organization bitacoras to Excel-compatible CSV with UTF-8 BOM encoding and native FileProvider sharing.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.util
 
 import android.content.Context

@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/IotasLifeApp.kt
+// Description: Application class providing manual dependency injection container and initial database seeding for the default organization.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app
 
 import android.app.Application
@@ -55,7 +59,7 @@ class IotasLifeApp : Application() {
                         Organization(
                             name = "Empresa Principal",
                             description = "Operaciones de desarrollo & sistemas",
-                            iconEmoji = "🏢",
+                            iconEmoji = "CORP",
                             colorHex = "#2B6CB0"
                         )
                     )
@@ -65,4 +69,3 @@ class IotasLifeApp : Application() {
         }
     }
 }
-

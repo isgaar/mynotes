@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/domain/model/BitacoraEntry.kt
+// Description: Domain model representing an immutable daily work log ticket including work done, observations, actions taken, and image evidence paths.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.domain.model
 
 data class BitacoraEntry(

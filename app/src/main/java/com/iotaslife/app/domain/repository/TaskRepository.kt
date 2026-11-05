@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/domain/repository/TaskRepository.kt
+// Description: Repository contract defining reactive queries and transactional mutation operations for organizational pending tasks.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.domain.repository
 
 import com.iotaslife.app.domain.model.TaskItem

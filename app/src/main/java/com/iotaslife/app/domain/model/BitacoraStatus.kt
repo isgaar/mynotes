@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/domain/model/BitacoraStatus.kt
+// Description: Enumeration defining lifecycle states for daily work log tickets with dedicated hex color codes and localized labels.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.domain.model
 
 import androidx.annotation.StringRes

@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/components/OrganizationSelectorDialog.kt
+// Description: Dialog for switching active workspaces and creating new organizations with category tags and zero emojis.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.components
 
 import androidx.compose.foundation.background
@@ -21,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -63,11 +68,12 @@ fun OrganizationSelectorDialog(
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp)
-            ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -75,15 +81,17 @@ fun OrganizationSelectorDialog(
                 ) {
                     Text(
                         text = stringResource(id = R.string.organizations_title),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
                     )
-                    IconButton(onClick = onDismiss) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(id = R.string.action_close))
+                    IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
+                // Organization List
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -119,7 +127,12 @@ fun OrganizationSelectorDialog(
                                     .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = org.iconEmoji, fontSize = 18.sp)
+                                Text(
+                                    text = org.iconEmoji.take(3).uppercase(),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
 
                             Spacer(modifier = Modifier.width(12.dp))
@@ -128,24 +141,32 @@ fun OrganizationSelectorDialog(
                                 Text(
                                     text = org.name,
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    fontWeight = FontWeight.SemiBold
                                 )
                                 if (org.description.isNotBlank()) {
                                     Text(
                                         text = org.description,
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
 
                             if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = stringResource(id = R.string.active_badge),
-                                    tint = NotionBlue,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .clip(CircleShape)
+                                        .background(NotionGreen),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = androidx.compose.ui.graphics.Color.White,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -153,12 +174,13 @@ fun OrganizationSelectorDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // New Organization Button
                 Button(
                     onClick = { showCreateDialog = true },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = stringResource(id = R.string.new_organization))
                 }
@@ -184,8 +206,8 @@ fun CreateOrganizationDialog(
 ) {
     var name by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
-    var selectedEmoji by remember { mutableStateOf("🏢") }
-    val emojiOptions = listOf("🏢", "💼", "🚀", "⚡", "🔧", "🏥", "📊")
+    var selectedTag by remember { mutableStateOf("CORP") }
+    val tagOptions = listOf("CORP", "DEV", "OPS", "SYS", "FIN", "APP")
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -197,27 +219,32 @@ fun CreateOrganizationDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Emoji selector
+                // Category tag selector
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    emojiOptions.forEach { emoji ->
-                        val isSelected = emoji == selectedEmoji
+                    tagOptions.forEach { tag ->
+                        val isSelected = tag == selectedTag
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
+                                .clip(RoundedCornerShape(8.dp))
                                 .background(if (isSelected) NotionBlue.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant)
                                 .border(
-                                    width = if (isSelected) 1.5.dp else 0.dp,
-                                    color = if (isSelected) NotionBlue else androidx.compose.ui.graphics.Color.Transparent,
-                                    shape = CircleShape
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = if (isSelected) NotionBlue else NotionBorder,
+                                    shape = RoundedCornerShape(8.dp)
                                 )
-                                .clickable { selectedEmoji = emoji },
+                                .clickable { selectedTag = tag }
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = emoji, fontSize = 18.sp)
+                            Text(
+                                text = tag,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) NotionBlue else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
@@ -227,8 +254,9 @@ fun CreateOrganizationDialog(
                     onValueChange = { name = it },
                     label = { Text(text = stringResource(id = R.string.organization_name)) },
                     placeholder = { Text(text = stringResource(id = R.string.organization_name_hint)) },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    shape = RoundedCornerShape(10.dp)
                 )
 
                 OutlinedTextField(
@@ -236,16 +264,17 @@ fun CreateOrganizationDialog(
                     onValueChange = { desc = it },
                     label = { Text(text = stringResource(id = R.string.organization_desc)) },
                     placeholder = { Text(text = stringResource(id = R.string.organization_desc_hint)) },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2
+                    shape = RoundedCornerShape(10.dp)
                 )
             }
         },
         confirmButton = {
-            TextButton(
+            Button(
                 onClick = {
                     if (name.isNotBlank()) {
-                        onConfirm(name.trim(), desc.trim(), selectedEmoji)
+                        onConfirm(name.trim(), desc.trim(), selectedTag)
                     }
                 },
                 enabled = name.isNotBlank()
@@ -260,4 +289,3 @@ fun CreateOrganizationDialog(
         }
     )
 }
-

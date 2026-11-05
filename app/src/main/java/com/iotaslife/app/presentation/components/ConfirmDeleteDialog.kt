@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/presentation/components/ConfirmDeleteDialog.kt
+// Description: Reusable alert dialog prompting the user for confirmation before executing irreversible deletion of records or organizations.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.presentation.components
 
 import androidx.compose.material3.AlertDialog

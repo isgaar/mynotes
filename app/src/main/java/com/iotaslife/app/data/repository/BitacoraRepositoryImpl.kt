@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/data/repository/BitacoraRepositoryImpl.kt
+// Description: Repository implementation encapsulating BitacoraDao operations and mapping between BitacoraEntity and BitacoraEntry domain models.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.data.repository
 
 import com.iotaslife.app.data.local.dao.BitacoraDao

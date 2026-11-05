@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/domain/repository/BitacoraRepository.kt
+// Description: Repository contract defining reactive queries and asynchronous persistence operations for daily bitacora log entries.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.domain.repository
 
 import com.iotaslife.app.domain.model.BitacoraEntry

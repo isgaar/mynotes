@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/domain/repository/OrganizationRepository.kt
+// Description: Repository contract defining reactive retrieval, creation, updating, and deletion of workspace organizations.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.domain.repository
 
 import com.iotaslife.app.domain.model.Organization

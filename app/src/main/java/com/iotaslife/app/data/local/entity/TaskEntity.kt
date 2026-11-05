@@ -1,3 +1,7 @@
+// File: app/src/main/java/com/iotaslife/app/data/local/entity/TaskEntity.kt
+// Description: Room entity representing organizational tasks with foreign key cascading delete on organization removal and priority mapping.
+// All Rights Reserved isgaar
+
 package com.iotaslife.app.data.local.entity
 
 import androidx.room.Entity
