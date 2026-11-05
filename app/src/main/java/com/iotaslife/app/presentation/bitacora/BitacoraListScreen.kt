@@ -21,14 +21,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.automirrored.outlined.EventNote
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Assignment
 import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Today
@@ -231,7 +231,7 @@ fun BitacoraListScreen(
                         )
                     )
                 }
-                items(BitacoraStatus.values()) { status ->
+                items(BitacoraStatus.entries) { status ->
                     val isSelected = uiState.selectedStatusFilter == status
                     FilterChip(
                         selected = isSelected,
@@ -269,7 +269,7 @@ fun BitacoraListScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.EventNote,
+                                imageVector = Icons.AutoMirrored.Outlined.EventNote,
                                 contentDescription = null,
                                 modifier = Modifier.size(32.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -412,7 +412,7 @@ fun BitacoraCard(
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Assignment,
+                    imageVector = Icons.AutoMirrored.Outlined.Assignment,
                     contentDescription = null,
                     tint = NotionBlue,
                     modifier = Modifier

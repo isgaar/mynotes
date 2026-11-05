@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.outlined.Assignment
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -90,7 +90,7 @@ fun MainScreen(
                             onClick = { mainViewModel.selectTab(0) },
                             icon = {
                                 Icon(
-                                    imageVector = if (mainUiState.selectedTab == 0) Icons.Filled.Assignment else Icons.Outlined.Assignment,
+                                    imageVector = if (mainUiState.selectedTab == 0) Icons.AutoMirrored.Filled.Assignment else Icons.AutoMirrored.Outlined.Assignment,
                                     contentDescription = stringResource(id = R.string.nav_bitacora)
                                 )
                             },

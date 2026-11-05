@@ -283,7 +283,7 @@ fun BitacoraEditorScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        BitacoraStatus.values().forEach { itemStatus ->
+                        BitacoraStatus.entries.forEach { itemStatus ->
                             val isSelected = status == itemStatus
                             Box(
                                 modifier = Modifier

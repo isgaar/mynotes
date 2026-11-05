@@ -93,7 +93,7 @@ fun TaskEditorDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TaskPriority.values().forEach { itemPriority ->
+                    TaskPriority.entries.forEach { itemPriority ->
                         val isSelected = priority == itemPriority
                         Box(
                             modifier = Modifier
