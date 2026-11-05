@@ -90,3 +90,9 @@ Para ejecutar las pruebas:
 ```bash
 ./gradlew connectedAndroidTest
 ```
+
+---
+
+## Historial de Cambios
+
+Para consultar el registro detallado de versiones y modificaciones arquitectonicas, revisa el archivo [CHANGELOG.md](CHANGELOG.md).
