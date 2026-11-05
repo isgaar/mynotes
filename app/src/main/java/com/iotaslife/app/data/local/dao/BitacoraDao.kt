@@ -41,3 +41,4 @@ interface BitacoraDao {
     @Query("DELETE FROM bitacoras WHERE id = :id")
     suspend fun deleteById(id: Long)
 }
+

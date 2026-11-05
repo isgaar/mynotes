@@ -8,3 +8,4 @@ data class Organization(
     val colorHex: String = "#333333",
     val createdAt: Long = System.currentTimeMillis()
 )
+

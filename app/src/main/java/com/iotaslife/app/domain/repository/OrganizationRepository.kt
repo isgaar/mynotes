@@ -10,3 +10,4 @@ interface OrganizationRepository {
     suspend fun updateOrganization(organization: Organization)
     suspend fun deleteOrganization(organization: Organization)
 }
+

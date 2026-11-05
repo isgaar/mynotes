@@ -155,3 +155,4 @@ class BitacoraCrudInstrumentedTest {
         assertTrue(tasksAfterDelete.isEmpty())
     }
 }
+

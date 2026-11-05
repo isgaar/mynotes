@@ -82,10 +82,16 @@
     <string name="validation_error_work_done">Por favor indica lo que se hizo ese día</string>
     <string name="validation_error_org_name">El nombre de la organización es obligatorio</string>
 
-    <!-- Feedback messages -->
-    <string name="msg_saved_successfully">Guardado correctamente</string>
-    <string name="msg_updated_successfully">Actualizado correctamente</string>
-    <string name="msg_deleted_successfully">Eliminado correctamente</string>
+    <!-- Toast Feedback Messages -->
+    <string name="msg_bitacora_saved">Registro de bitácora guardado exitosamente</string>
+    <string name="msg_bitacora_updated">Registro de bitácora actualizado exitosamente</string>
+    <string name="msg_bitacora_deleted">Registro de bitácora eliminado</string>
+    <string name="msg_task_saved">Pendiente creado exitosamente</string>
+    <string name="msg_task_updated">Pendiente actualizado exitosamente</string>
+    <string name="msg_task_deleted">Pendiente eliminado</string>
+    <string name="msg_task_completed">Pendiente marcado como completado</string>
+    <string name="msg_task_pending">Pendiente marcado como activo</string>
+    <string name="msg_org_created">Organización creada exitosamente</string>
 
     <!-- Notion / Iotas Stats -->
     <string name="stat_total_entries">Registros</string>

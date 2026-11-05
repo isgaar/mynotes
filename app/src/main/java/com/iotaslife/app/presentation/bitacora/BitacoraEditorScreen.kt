@@ -1,5 +1,6 @@
 package com.iotaslife.app.presentation.bitacora
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -55,7 +57,6 @@ import com.iotaslife.app.R
 import com.iotaslife.app.domain.model.BitacoraEntry
 import com.iotaslife.app.domain.model.BitacoraStatus
 import com.iotaslife.app.presentation.components.ConfirmDeleteDialog
-import com.iotaslife.app.presentation.theme.NotionBlue
 import com.iotaslife.app.presentation.theme.NotionBorder
 import com.iotaslife.app.presentation.theme.NotionRed
 import kotlinx.coroutines.launch
@@ -69,6 +70,7 @@ fun BitacoraEditorScreen(
     viewModel: BitacoraViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var title by remember { mutableStateOf(entry?.title ?: "") }
     var ticketCode by remember {
         mutableStateOf(
@@ -91,6 +93,9 @@ fun BitacoraEditorScreen(
 
     val validationErrorTitle = stringResource(id = R.string.validation_error_title)
     val validationErrorWorkDone = stringResource(id = R.string.validation_error_work_done)
+    val msgBitacoraSaved = stringResource(id = R.string.msg_bitacora_saved)
+    val msgBitacoraUpdated = stringResource(id = R.string.msg_bitacora_updated)
+    val msgBitacoraDeleted = stringResource(id = R.string.msg_bitacora_deleted)
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -150,6 +155,7 @@ fun BitacoraEditorScreen(
                                     return@Button
                                 }
 
+                                val isNew = entry == null
                                 viewModel.saveEntry(
                                     id = entry?.id ?: 0L,
                                     organizationId = organizationId,
@@ -160,11 +166,22 @@ fun BitacoraEditorScreen(
                                     observations = observations,
                                     actionsTaken = actionsTaken,
                                     status = status,
-                                    onComplete = onSaveSuccess
+                                    onComplete = {
+                                        // Material You / Android Toast feedback
+                                        Toast.makeText(
+                                            context,
+                                            if (isNew) msgBitacoraSaved else msgBitacoraUpdated,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        onSaveSuccess()
+                                    }
                                 )
                             },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = NotionBlue)
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
                         ) {
                             Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
@@ -185,11 +202,13 @@ fun BitacoraEditorScreen(
         ) {
             // Meta card: Ticket code, Date & Status
             Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, NotionBorder, RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(
@@ -203,7 +222,7 @@ fun BitacoraEditorScreen(
                             placeholder = { Text(text = stringResource(id = R.string.ticket_code_hint)) },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(12.dp)
                         )
 
                         OutlinedTextField(
@@ -212,7 +231,7 @@ fun BitacoraEditorScreen(
                             readOnly = true,
                             label = { Text(text = stringResource(id = R.string.ticket_date)) },
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(12.dp)
                         )
                     }
 
@@ -272,7 +291,7 @@ fun BitacoraEditorScreen(
                 placeholder = { Text(text = stringResource(id = R.string.ticket_title_hint)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface
@@ -281,14 +300,14 @@ fun BitacoraEditorScreen(
 
             // Section 1: Lo que se hizo ese día (Work Done)
             Card(
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(
                         1.dp,
-                        if (workDoneError) NotionRed else NotionBorder,
-                        RoundedCornerShape(12.dp)
+                        if (workDoneError) NotionRed else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        RoundedCornerShape(16.dp)
                     )
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
@@ -296,7 +315,7 @@ fun BitacoraEditorScreen(
                         text = stringResource(id = R.string.work_done_section),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = NotionBlue
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
@@ -310,9 +329,9 @@ fun BitacoraEditorScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(130.dp),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NotionBlue,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = NotionBorder
                         )
                     )
@@ -321,11 +340,11 @@ fun BitacoraEditorScreen(
 
             // Section 2: Acciones realizadas (Actions Taken)
             Card(
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, NotionBorder, RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
@@ -341,9 +360,9 @@ fun BitacoraEditorScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(110.dp),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NotionBlue,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = NotionBorder
                         )
                     )
@@ -352,11 +371,11 @@ fun BitacoraEditorScreen(
 
             // Section 3: Observaciones (Observations)
             Card(
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, NotionBorder, RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
@@ -372,9 +391,9 @@ fun BitacoraEditorScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(110.dp),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NotionBlue,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = NotionBorder
                         )
                     )
@@ -391,6 +410,7 @@ fun BitacoraEditorScreen(
             message = stringResource(id = R.string.delete_confirm_msg),
             onConfirm = {
                 viewModel.deleteEntry(entry) {
+                    Toast.makeText(context, msgBitacoraDeleted, Toast.LENGTH_SHORT).show()
                     showDeleteConfirm = false
                     onBack()
                 }

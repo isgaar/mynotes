@@ -43,3 +43,4 @@ class BitacoraRepositoryImpl(
         dao.deleteById(id)
     }
 }
+

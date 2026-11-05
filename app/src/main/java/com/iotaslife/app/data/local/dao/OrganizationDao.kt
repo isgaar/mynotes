@@ -26,3 +26,4 @@ interface OrganizationDao {
     @Delete
     suspend fun delete(org: OrganizationEntity)
 }
+

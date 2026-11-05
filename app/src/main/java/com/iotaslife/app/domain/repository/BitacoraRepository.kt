@@ -12,3 +12,4 @@ interface BitacoraRepository {
     suspend fun deleteEntry(entry: BitacoraEntry)
     suspend fun deleteEntryById(id: Long)
 }
+

@@ -3,3 +3,4 @@
 -keepclassmembers class * {
     @androidx.room.* *;
 }
+

@@ -33,3 +33,4 @@ class OrganizationRepositoryImpl(
         dao.delete(OrganizationEntity.fromDomain(organization))
     }
 }
+

@@ -1,5 +1,6 @@
 package com.iotaslife.app.presentation.main
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.iotaslife.app.R
@@ -36,7 +38,6 @@ import com.iotaslife.app.presentation.components.NotionTopBar
 import com.iotaslife.app.presentation.components.OrganizationSelectorDialog
 import com.iotaslife.app.presentation.tasks.TasksScreen
 import com.iotaslife.app.presentation.tasks.TasksViewModel
-import com.iotaslife.app.presentation.theme.NotionBlue
 import com.iotaslife.app.presentation.theme.NotionBorder
 
 sealed class CurrentScreen {
@@ -51,9 +52,11 @@ fun MainScreen(
     tasksViewModel: TasksViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val mainUiState by mainViewModel.uiState.collectAsState()
     var currentScreen by remember { mutableStateOf<CurrentScreen>(CurrentScreen.Main) }
     var showOrgDialog by remember { mutableStateOf(false) }
+    val msgOrgCreated = stringResource(id = R.string.msg_org_created)
 
     when (val screen = currentScreen) {
         is CurrentScreen.BitacoraEditor -> {
@@ -77,10 +80,10 @@ fun MainScreen(
                 bottomBar = {
                     NavigationBar(
                         containerColor = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 0.dp,
+                        tonalElevation = 3.dp,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(width = 1.dp, color = NotionBorder)
+                            .border(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                     ) {
                         NavigationBarItem(
                             selected = mainUiState.selectedTab == 0,
@@ -93,9 +96,9 @@ fun MainScreen(
                             },
                             label = { Text(text = stringResource(id = R.string.nav_bitacora)) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = NotionBlue,
-                                selectedTextColor = NotionBlue,
-                                indicatorColor = NotionBlue.copy(alpha = 0.12f)
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer
                             )
                         )
 
@@ -110,9 +113,9 @@ fun MainScreen(
                             },
                             label = { Text(text = stringResource(id = R.string.nav_pendientes)) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = NotionBlue,
-                                selectedTextColor = NotionBlue,
-                                indicatorColor = NotionBlue.copy(alpha = 0.12f)
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer
                             )
                         )
                     }
@@ -153,8 +156,10 @@ fun MainScreen(
             onSelectOrg = { org -> mainViewModel.selectOrganization(org) },
             onCreateOrg = { name, desc, emoji ->
                 mainViewModel.createOrganization(name, desc, emoji)
+                Toast.makeText(context, msgOrgCreated, Toast.LENGTH_SHORT).show()
             },
             onDismiss = { showOrgDialog = false }
         )
     }
 }
+

@@ -8,3 +8,4 @@ enum class TaskPriority(@StringRes val labelRes: Int, val hexColor: Long, val bg
     MEDIUM(R.string.priority_medium, 0xFFB78103, 0xFFFDF6E2),
     HIGH(R.string.priority_high, 0xFFC62828, 0xFFFDECEB)
 }
+

@@ -1,5 +1,6 @@
 package com.iotaslife.app.presentation.bitacora
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,8 +75,10 @@ fun BitacoraListScreen(
     onEditEntry: (BitacoraEntry) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     var entryToDelete by remember { mutableStateOf<BitacoraEntry?>(null) }
+    val msgDeleted = stringResource(id = R.string.msg_bitacora_deleted)
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -230,8 +234,8 @@ fun BitacoraListScreen(
         // Floating Action Button to add entry
         FloatingActionButton(
             onClick = onAddEntry,
-            containerColor = NotionBlue,
-            contentColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -249,7 +253,9 @@ fun BitacoraListScreen(
             title = stringResource(id = R.string.delete_confirm_title),
             message = stringResource(id = R.string.delete_confirm_msg),
             onConfirm = {
-                viewModel.deleteEntry(entry)
+                viewModel.deleteEntry(entry) {
+                    Toast.makeText(context, msgDeleted, Toast.LENGTH_SHORT).show()
+                }
                 entryToDelete = null
             },
             onDismiss = { entryToDelete = null }
@@ -461,3 +467,4 @@ fun BitacoraCard(
         }
     }
 }
+

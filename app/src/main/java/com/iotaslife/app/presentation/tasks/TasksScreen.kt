@@ -1,5 +1,6 @@
 package com.iotaslife.app.presentation.tasks
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -66,10 +68,17 @@ fun TasksScreen(
     organizationId: Long,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     var editingTask by remember { mutableStateOf<TaskItem?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
     var taskToDelete by remember { mutableStateOf<TaskItem?>(null) }
+
+    val msgTaskSaved = stringResource(id = R.string.msg_task_saved)
+    val msgTaskUpdated = stringResource(id = R.string.msg_task_updated)
+    val msgTaskDeleted = stringResource(id = R.string.msg_task_deleted)
+    val msgTaskCompleted = stringResource(id = R.string.msg_task_completed)
+    val msgTaskPending = stringResource(id = R.string.msg_task_pending)
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -207,7 +216,15 @@ fun TasksScreen(
                     items(uiState.tasks, key = { it.id }) { task ->
                         TaskItemCard(
                             task = task,
-                            onToggle = { viewModel.toggleCompleted(task) },
+                            onToggle = {
+                                val nextState = !task.isCompleted
+                                viewModel.toggleCompleted(task)
+                                Toast.makeText(
+                                    context,
+                                    if (nextState) msgTaskCompleted else msgTaskPending,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
                             onEdit = { editingTask = task },
                             onDelete = { taskToDelete = task }
                         )
@@ -216,11 +233,11 @@ fun TasksScreen(
             }
         }
 
-        // FAB to create task
+        // FAB to create task with Material You colors
         FloatingActionButton(
             onClick = { showCreateDialog = true },
-            containerColor = NotionBlue,
-            contentColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -244,7 +261,9 @@ fun TasksScreen(
                     title = title,
                     description = desc,
                     priority = priority
-                )
+                ) {
+                    Toast.makeText(context, msgTaskSaved, Toast.LENGTH_SHORT).show()
+                }
                 showCreateDialog = false
             },
             onDismiss = { showCreateDialog = false }
@@ -264,7 +283,9 @@ fun TasksScreen(
                     description = desc,
                     priority = priority,
                     isCompleted = task.isCompleted
-                )
+                ) {
+                    Toast.makeText(context, msgTaskUpdated, Toast.LENGTH_SHORT).show()
+                }
                 editingTask = null
             },
             onDismiss = { editingTask = null }
@@ -277,7 +298,9 @@ fun TasksScreen(
             title = stringResource(id = R.string.delete_confirm_title),
             message = stringResource(id = R.string.delete_confirm_msg),
             onConfirm = {
-                viewModel.deleteTask(task)
+                viewModel.deleteTask(task) {
+                    Toast.makeText(context, msgTaskDeleted, Toast.LENGTH_SHORT).show()
+                }
                 taskToDelete = null
             },
             onDismiss = { taskToDelete = null }
@@ -392,3 +415,4 @@ fun TaskItemCard(
         }
     }
 }
+

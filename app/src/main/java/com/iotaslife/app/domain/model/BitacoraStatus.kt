@@ -9,3 +9,4 @@ enum class BitacoraStatus(@StringRes val labelRes: Int, val hexColor: Long, val 
     BLOCKED(R.string.status_blocked, 0xFFC62828, 0xFFFDECEB),
     REVIEW(R.string.status_review, 0xFFB78103, 0xFFFDF6E2)
 }
+
