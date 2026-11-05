@@ -86,3 +86,4 @@ $ADB_CMD -s "$TARGET_DEVICE" shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY"
 echo -e "${GREEN}======================================================${NC}"
 echo -e "${GREEN}✓ ¡Aplicación desplegada y ejecutándose con éxito!${NC}"
 echo -e "${GREEN}======================================================${NC}"
+
