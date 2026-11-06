@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">IotasLife</string>
+    <string name="app_name">Mis Notas</string>
 
     <!-- Navigation & Titles -->
     <string name="nav_bitacora">Bitácora</string>
     <string name="nav_pendientes">Pendientes</string>
+    <string name="nav_contingencia">Contingencia</string>
     <string name="organizations_title">Organizaciones</string>
     <string name="select_organization">Seleccionar Organización</string>
     <string name="no_organization_selected">Sin Organización seleccionada</string>
@@ -43,6 +44,8 @@
     <string name="evidence_section_title">Evidencias fotográficas</string>
     <string name="evidence_section_hint">Las imágenes se guardan exclusivamente en el almacenamiento interno de la app (no se duplican en la galería).</string>
     <string name="action_add_evidence">Adjuntar imagen</string>
+    <string name="action_view_image">Ver imagen</string>
+    <string name="msg_image_not_found">Archivo de imagen no encontrado en almacenamiento</string>
     <string name="export_excel_action">Exportar a Excel</string>
     <string name="filter_today">Hoy</string>
     <string name="filter_all">Todos</string>
@@ -56,6 +59,10 @@
     <!-- Pendientes / Tasks -->
     <string name="tasks_title">Tareas Pendientes</string>
     <string name="tasks_subtitle">Gestión rápida de pendientes y compromisos</string>
+    <string name="home_profile_name">Hogar</string>
+    <string name="home_profile_desc">Lista de tareas pendientes del hogar</string>
+    <string name="home_tasks_title">Tareas del Hogar</string>
+    <string name="home_tasks_subtitle">Lista personal de pendientes y labores del hogar</string>
     <string name="new_task">Nuevo Pendiente</string>
     <string name="edit_task">Editar Pendiente</string>
     <string name="task_title">Título del pendiente</string>
@@ -72,6 +79,51 @@
     <string name="pending_filter_pending">Pendientes (%d)</string>
     <string name="pending_filter_completed">Finalizados (%d)</string>
 
+    <!-- Contingencia (Emergencias & Gastos Taxi) -->
+    <string name="contingencia_title">Contingencias</string>
+    <string name="contingencia_subtitle">Registro de urgencias presenciales y gastos de taxi para reembolso</string>
+    <string name="new_contingencia">Nueva Contingencia</string>
+    <string name="edit_contingencia">Editar Contingencia</string>
+    <string name="contingencia_title_label">Título del Incidente / Urgencia</string>
+    <string name="contingencia_title_hint">Ej. Caída de enlace o servidor en planta</string>
+    <string name="contingencia_reason_label">Motivo de Presencia Inmediata</string>
+    <string name="contingencia_reason_hint">Explica por qué fue indispensable que acudieras al sitio de inmediato…</string>
+    <string name="contingencia_solution_label">Solución Aplicada / Trabajo Realizado</string>
+    <string name="contingencia_solution_hint">Describe lo realizado para solucionar la contingencia presencialmente…</string>
+    <string name="contingencia_taxi_cost_label">Precio del Taxi</string>
+    <string name="contingencia_taxi_cost_hint">0.00</string>
+    <string name="contingencia_taxi_details_label">Trayecto o Detalles del Taxi</string>
+    <string name="contingencia_taxi_details_hint">Ej. Taxi ida y vuelta de domicilio a oficinas de Cianca</string>
+    <string name="contingencia_date_label">Fecha del Incidente</string>
+    <string name="contingencia_status_reimbursed">Reembolsado</string>
+    <string name="contingencia_status_pending">Pendiente de Reembolso</string>
+    <string name="contingencia_mark_reimbursed">Marcar Reembolsado</string>
+    <string name="contingencia_mark_pending">Pendiente Reembolso</string>
+    <string name="contingencia_empty_title">Sin salidas de contingencia</string>
+    <string name="contingencia_empty_subtitle">Registra aquí las visitas urgentes y gastos de taxi para justificar con tu jefe.</string>
+    <string name="contingencia_search_hint">Buscar por título, motivo, solución o fecha…</string>
+    <string name="contingencia_summary_card_title">Resumen de Gastos en Taxis</string>
+    <string name="contingencia_total_spent">Total en taxis:</string>
+    <string name="contingencia_pending_spent">Pendiente de reembolso:</string>
+    <string name="contingencia_reimbursed_spent">Ya reembolsado:</string>
+    <string name="contingencia_share_report">Compartir Reporte con Jefe</string>
+    <string name="contingencia_evidence_title">Comprobantes y Evidencias</string>
+    <string name="contingencia_evidence_hint">Recibos de taxi, fotos del equipo reparado o evidencias fotográficas.</string>
+    <string name="action_attach_receipt">Adjuntar Foto / Recibo</string>
+    <string name="msg_contingencia_saved">Salida de contingencia guardada</string>
+    <string name="msg_contingencia_updated">Contingencia actualizada</string>
+    <string name="msg_contingencia_deleted">Contingencia eliminada</string>
+    <string name="msg_contingencia_reimbursed_toggled">Estado de reembolso actualizado</string>
+    <string name="validation_error_contingencia_title">El título de la urgencia es obligatorio</string>
+    <string name="validation_error_contingencia_reason">El motivo de presencia inmediata es obligatorio</string>
+    <string name="validation_error_contingencia_taxi">Indica un costo válido para el taxi</string>
+    <string name="delete_contingencia_confirm_title">¿Eliminar registro de contingencia?</string>
+    <string name="delete_contingencia_confirm_msg">Esta contingencia y su comprobante de taxi serán eliminados permanentemente.</string>
+    <string name="contingencia_filter_all">Todas (%d)</string>
+    <string name="contingencia_filter_pending">Por Reembolsar (%d)</string>
+    <string name="contingencia_filter_reimbursed">Reembolsadas (%d)</string>
+    <string name="taxi_badge_prefix">Taxi:</string>
+
     <!-- Common Actions & Buttons -->
     <string name="action_save">Guardar</string>
     <string name="action_cancel">Cancelar</string>
@@ -85,7 +137,7 @@
     <string name="delete_confirm_title">¿Eliminar registro?</string>
     <string name="delete_confirm_msg">Esta acción no se puede deshacer. Se eliminará permanentemente.</string>
     <string name="delete_org_confirm_title">¿Eliminar organización?</string>
-    <string name="delete_org_confirm_msg">Se eliminarán todos los registros de bitácora y pendientes asociados.</string>
+    <string name="delete_org_confirm_msg">Se eliminarán todos los registros de bitácora, contingencias y pendientes asociados.</string>
     <string name="validation_error_title">El título es obligatorio</string>
     <string name="validation_error_work_done">Por favor indica lo que se hizo ese día</string>
     <string name="validation_error_org_name">El nombre de la organización es obligatorio</string>
@@ -100,6 +152,7 @@
     <string name="msg_task_completed">Pendiente marcado como completado</string>
     <string name="msg_task_pending">Pendiente marcado como activo</string>
     <string name="msg_org_created">Organización creada exitosamente</string>
+    <string name="msg_org_deleted">Organización eliminada</string>
     <string name="msg_exporting_excel">Generando archivo Excel...</string>
     <string name="msg_exported_success">Exportado a Excel exitosamente</string>
     <string name="msg_no_entries_to_export">No hay registros para exportar</string>

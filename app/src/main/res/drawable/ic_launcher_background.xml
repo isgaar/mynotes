@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- File: app/src/main/res/drawable/ic_launcher_background.xml -->
+<!-- Description: Adaptive launcher icon background with deep slate tones and subtle emerald accent geometry. -->
+<!-- All Rights Reserved isgaar -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:fillColor="#1F1F1F"
+        android:fillColor="#11161B"
         android:pathData="M0,0h108v108h-108z" />
+    <!-- Subtle circular ambient glow in dark emerald -->
+    <path
+        android:fillColor="#1A2D23"
+        android:pathData="M54,18 C73.88,18 90,34.12 90,54 C90,73.88 73.88,90 54,90 C34.12,90 18,73.88 18,54 C18,34.12 34.12,18 54,18 Z" />
+    <path
+        android:fillColor="#15211B"
+        android:pathData="M54,26 C69.46,26 82,38.54 82,54 C82,69.46 69.46,82 54,82 C38.54,82 26,69.46 26,54 C26,38.54 38.54,26 54,26 Z" />
 </vector>
-

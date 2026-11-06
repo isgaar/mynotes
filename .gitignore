@@ -20,3 +20,4 @@ evidence_images/
 *.webp
 
 .kotlin/
+.db_backup/

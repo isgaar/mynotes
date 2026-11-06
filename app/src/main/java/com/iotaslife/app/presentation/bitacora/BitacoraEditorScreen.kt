@@ -5,6 +5,7 @@
 package com.iotaslife.app.presentation.bitacora
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -113,6 +114,8 @@ fun BitacoraEditorScreen(
     var titleError by remember { mutableStateOf(false) }
     var workDoneError by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    BackHandler(onBack = onBack)
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()

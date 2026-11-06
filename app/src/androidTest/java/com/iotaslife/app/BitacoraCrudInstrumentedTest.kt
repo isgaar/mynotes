@@ -9,10 +9,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.iotaslife.app.data.local.AppDatabase
 import com.iotaslife.app.data.repository.BitacoraRepositoryImpl
+import com.iotaslife.app.data.repository.ContingenciaRepositoryImpl
 import com.iotaslife.app.data.repository.OrganizationRepositoryImpl
 import com.iotaslife.app.data.repository.TaskRepositoryImpl
 import com.iotaslife.app.domain.model.BitacoraEntry
 import com.iotaslife.app.domain.model.BitacoraStatus
+import com.iotaslife.app.domain.model.ContingenciaEntry
 import com.iotaslife.app.domain.model.Organization
 import com.iotaslife.app.domain.model.TaskItem
 import com.iotaslife.app.domain.model.TaskPriority
@@ -34,6 +36,7 @@ class BitacoraCrudInstrumentedTest {
     private lateinit var orgRepo: OrganizationRepositoryImpl
     private lateinit var bitacoraRepo: BitacoraRepositoryImpl
     private lateinit var taskRepo: TaskRepositoryImpl
+    private lateinit var contingenciaRepo: ContingenciaRepositoryImpl
 
     @Before
     fun setUp() {
@@ -44,6 +47,7 @@ class BitacoraCrudInstrumentedTest {
         orgRepo = OrganizationRepositoryImpl(database.organizationDao())
         bitacoraRepo = BitacoraRepositoryImpl(database.bitacoraDao())
         taskRepo = TaskRepositoryImpl(database.taskDao())
+        contingenciaRepo = ContingenciaRepositoryImpl(database.contingenciaDao())
     }
 
     @After
@@ -184,5 +188,40 @@ class BitacoraCrudInstrumentedTest {
         assertNotNull(retrieved)
         assertEquals(2, retrieved?.imagePaths?.size)
         assertEquals(imageList, retrieved?.imagePaths)
+    }
+
+    @Test
+    fun testContingenciaLifecycle_Save_ToggleReimbursed_Delete() = runBlocking {
+        val orgId = orgRepo.insertOrganization(
+            Organization(name = "Contingencia Org", description = "Test Corp", iconEmoji = "CORP")
+        )
+        val entry = ContingenciaEntry(
+            organizationId = orgId,
+            title = "Caida de switch principal",
+            reason = "Presencia inmediata requerida por fallo de red",
+            solution = "Reinicio fisico y parcheo de cable",
+            dateEpochMillis = System.currentTimeMillis(),
+            taxiCost = 175.50,
+            taxiDetails = "Taxi ida y vuelta domicilio - planta",
+            isReimbursed = false,
+            imagePaths = listOf("/data/user/0/com.iotaslife.app/files/evidence_images/receipt_1.jpg")
+        )
+        val id = contingenciaRepo.insertContingencia(entry)
+        val retrieved = contingenciaRepo.getContingenciaById(id)
+        assertNotNull(retrieved)
+        assertEquals("Caida de switch principal", retrieved?.title)
+        assertEquals(175.50, retrieved?.taxiCost ?: 0.0, 0.01)
+        assertEquals(false, retrieved?.isReimbursed)
+        assertEquals(1, retrieved?.imagePaths?.size)
+
+        // Toggle reimbursed
+        contingenciaRepo.toggleReimbursed(id, true)
+        val updated = contingenciaRepo.getContingenciaById(id)
+        assertEquals(true, updated?.isReimbursed)
+
+        // Delete
+        contingenciaRepo.deleteContingenciaById(id)
+        val afterDelete = contingenciaRepo.getContingenciasForOrganization(orgId).first()
+        assertTrue(afterDelete.isEmpty())
     }
 }

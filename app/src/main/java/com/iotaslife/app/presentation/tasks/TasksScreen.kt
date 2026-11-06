@@ -73,6 +73,7 @@ import com.iotaslife.app.presentation.theme.NotionRed
 fun TasksScreen(
     viewModel: TasksViewModel,
     organizationId: Long,
+    isHomeProfile: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -95,12 +96,14 @@ fun TasksScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = stringResource(id = R.string.tasks_title),
+                text = if (isHomeProfile) stringResource(id = R.string.home_tasks_title)
+                else stringResource(id = R.string.tasks_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = stringResource(id = R.string.tasks_subtitle),
+                text = if (isHomeProfile) stringResource(id = R.string.home_tasks_subtitle)
+                else stringResource(id = R.string.tasks_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

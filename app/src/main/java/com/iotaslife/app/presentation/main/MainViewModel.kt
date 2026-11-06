@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 data class MainUiState(
     val organizations: List<Organization> = emptyList(),
     val selectedOrg: Organization? = null,
-    val selectedTab: Int = 0 // 0: Bitacora, 1: Pendientes
+    val selectedTab: Int = 0 // 0: Bitacora, 1: Pendientes, 2: Contingencia
 )
 
 class MainViewModel(
@@ -72,6 +72,15 @@ class MainViewModel(
         }
     }
 
+    fun deleteOrganization(org: Organization) {
+        viewModelScope.launch {
+            orgRepository.deleteOrganization(org)
+            if (_selectedOrgId.value == org.id) {
+                _selectedOrgId.value = 0L
+            }
+        }
+    }
+
     companion object {
         fun provideFactory(
             orgRepository: OrganizationRepository
@@ -83,4 +92,3 @@ class MainViewModel(
         }
     }
 }
-

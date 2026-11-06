@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- File: app/src/main/res/drawable/ic_launcher_foreground.xml -->
+<!-- Description: Adaptive launcher icon foreground representing Mis Notas notepad with emerald accents and crisp checkmark. -->
+<!-- All Rights Reserved isgaar -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Notion / Iotas notebook & tick icon -->
+    
+    <!-- Notepad card background -->
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M34,24 L74,24 C77.3,24 80,26.7 80,30 L80,78 C80,81.3 77.3,84 74,84 L34,84 C30.7,84 28,81.3 28,78 L28,30 C28,26.7 30.7,24 34,24 Z M36,32 L36,76 L72,76 L72,32 L36,32 Z" />
+        android:fillColor="#F4F4F6"
+        android:pathData="M34,26 L74,26 C77.31,26 80,28.69 80,32 L80,78 C80,81.31 77.31,84 74,84 L34,84 C30.69,84 28,81.31 28,78 L28,32 C28,28.69 30.69,26 34,26 Z" />
+    
+    <!-- Notepad header strip in dark emerald green -->
     <path
-        android:fillColor="#FF388E3C"
-        android:pathData="M44,54 L52,62 L66,46 L63,43 L52,56 L47,51 Z" />
-</vector>
+        android:fillColor="#1B4D3E"
+        android:pathData="M34,26 L74,26 C77.31,26 80,28.69 80,32 L80,37 L28,37 L28,32 C28,28.69 30.69,26 34,26 Z" />
 
+    <!-- Notepad binding holes / spiral accents -->
+    <path
+        android:fillColor="#E0E0E6"
+        android:pathData="M36,30 A1.5,1.5 0 1,0 39,30 A1.5,1.5 0 1,0 36,30 Z M46,30 A1.5,1.5 0 1,0 49,30 A1.5,1.5 0 1,0 46,30 Z M56,30 A1.5,1.5 0 1,0 59,30 A1.5,1.5 0 1,0 56,30 Z M66,30 A1.5,1.5 0 1,0 69,30 A1.5,1.5 0 1,0 66,30 Z" />
+
+    <!-- Note lines (ruled paper) -->
+    <path
+        android:fillColor="#B0BEC5"
+        android:pathData="M36,45 L72,45 L72,47 L36,47 Z M36,53 L72,53 L72,55 L36,55 Z M36,61 L62,61 L62,63 L36,63 Z M36,69 L56,69 L56,71 L36,71 Z" />
+
+    <!-- Accent Emerald checkmark circle badge at bottom right -->
+    <path
+        android:fillColor="#2E7D32"
+        android:pathData="M67,59 C74.18,59 80,64.82 80,72 C80,79.18 74.18,85 67,85 C59.82,85 54,79.18 54,72 C54,64.82 59.82,59 67,59 Z" />
+
+    <!-- Checkmark white symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M61,72 L65,76 L73,68 L71.5,66.5 L65,73 L62.5,70.5 Z" />
+</vector>

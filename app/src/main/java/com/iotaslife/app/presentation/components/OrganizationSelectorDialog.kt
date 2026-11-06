@@ -1,5 +1,5 @@
 // File: app/src/main/java/com/iotaslife/app/presentation/components/OrganizationSelectorDialog.kt
-// Description: Dialog for switching active workspaces and creating new organizations with category tags and zero emojis.
+// Description: Dialog for switching active workspaces, managing organizations, and creating new profiles with category tags and zero emojis.
 // All Rights Reserved isgaar
 
 package com.iotaslife.app.presentation.components
@@ -25,7 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.Business
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -53,6 +53,7 @@ import com.iotaslife.app.domain.model.Organization
 import com.iotaslife.app.presentation.theme.NotionBlue
 import com.iotaslife.app.presentation.theme.NotionBorder
 import com.iotaslife.app.presentation.theme.NotionGreen
+import com.iotaslife.app.presentation.theme.NotionRed
 
 @Composable
 fun OrganizationSelectorDialog(
@@ -60,9 +61,11 @@ fun OrganizationSelectorDialog(
     selectedOrg: Organization?,
     onSelectOrg: (Organization) -> Unit,
     onCreateOrg: (name: String, desc: String, emoji: String) -> Unit,
+    onDeleteOrg: ((Organization) -> Unit)? = null,
     onDismiss: () -> Unit
 ) {
     var showCreateDialog by remember { mutableStateOf(false) }
+    var orgToDelete by remember { mutableStateOf<Organization?>(null) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -128,8 +131,8 @@ fun OrganizationSelectorDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = org.iconEmoji.take(3).uppercase(),
-                                    fontSize = 11.sp,
+                                    text = org.iconEmoji.take(4).uppercase(),
+                                    fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -167,6 +170,18 @@ fun OrganizationSelectorDialog(
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
+                            } else if (onDeleteOrg != null && organizations.size > 1) {
+                                IconButton(
+                                    onClick = { orgToDelete = org },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DeleteOutline,
+                                        contentDescription = stringResource(id = R.string.action_delete),
+                                        tint = NotionRed,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -197,6 +212,18 @@ fun OrganizationSelectorDialog(
             onDismiss = { showCreateDialog = false }
         )
     }
+
+    orgToDelete?.let { org ->
+        ConfirmDeleteDialog(
+            title = stringResource(id = R.string.delete_org_confirm_title),
+            message = stringResource(id = R.string.delete_org_confirm_msg),
+            onConfirm = {
+                onDeleteOrg?.invoke(org)
+                orgToDelete = null
+            },
+            onDismiss = { orgToDelete = null }
+        )
+    }
 }
 
 @Composable
@@ -207,7 +234,7 @@ fun CreateOrganizationDialog(
     var name by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
     var selectedTag by remember { mutableStateOf("CORP") }
-    val tagOptions = listOf("CORP", "DEV", "OPS", "SYS", "FIN", "APP")
+    val tagOptions = listOf("CORP", "CASA", "DEV", "OPS", "SYS", "FIN", "APP")
 
     AlertDialog(
         onDismissRequest = onDismiss,

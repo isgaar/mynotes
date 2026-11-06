@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.iotaslife.app.IotasLifeApp
 import com.iotaslife.app.presentation.bitacora.BitacoraViewModel
+import com.iotaslife.app.presentation.contingencia.ContingenciaViewModel
 import com.iotaslife.app.presentation.tasks.TasksViewModel
 import com.iotaslife.app.presentation.theme.IotasLifeTheme
 
@@ -39,15 +40,22 @@ class MainActivity : ComponentActivity() {
             )
         }
 
+        val contingenciaViewModel: ContingenciaViewModel by viewModels {
+            ContingenciaViewModel.provideFactory(
+                container.contingenciaRepository,
+                mainViewModel.selectedOrgId
+            )
+        }
+
         setContent {
             IotasLifeTheme {
                 MainScreen(
                     mainViewModel = mainViewModel,
                     bitacoraViewModel = bitacoraViewModel,
-                    tasksViewModel = tasksViewModel
+                    tasksViewModel = tasksViewModel,
+                    contingenciaViewModel = contingenciaViewModel
                 )
             }
         }
     }
 }
-

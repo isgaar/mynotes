@@ -1,5 +1,5 @@
 // File: app/src/main/java/com/iotaslife/app/presentation/main/MainScreen.kt
-// Description: Root scaffold composable managing bottom navigation between Bitacora and Pendientes tabs and organization switching.
+// Description: Root scaffold composable coordinating workspace navigation between Bitacora, Pendientes, and Contingencia modules.
 // All Rights Reserved isgaar
 
 package com.iotaslife.app.presentation.main
@@ -15,7 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.outlined.CheckCircleOutline
+import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -35,18 +37,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.iotaslife.app.R
 import com.iotaslife.app.domain.model.BitacoraEntry
+import com.iotaslife.app.domain.model.ContingenciaEntry
 import com.iotaslife.app.presentation.bitacora.BitacoraEditorScreen
 import com.iotaslife.app.presentation.bitacora.BitacoraListScreen
 import com.iotaslife.app.presentation.bitacora.BitacoraViewModel
 import com.iotaslife.app.presentation.components.NotionTopBar
 import com.iotaslife.app.presentation.components.OrganizationSelectorDialog
+import com.iotaslife.app.presentation.contingencia.ContingenciaEditorScreen
+import com.iotaslife.app.presentation.contingencia.ContingenciaListScreen
+import com.iotaslife.app.presentation.contingencia.ContingenciaViewModel
 import com.iotaslife.app.presentation.tasks.TasksScreen
 import com.iotaslife.app.presentation.tasks.TasksViewModel
-import com.iotaslife.app.presentation.theme.NotionBorder
 
 sealed class CurrentScreen {
     object Main : CurrentScreen()
     data class BitacoraEditor(val entry: BitacoraEntry?) : CurrentScreen()
+    data class ContingenciaEditor(val entry: ContingenciaEntry?) : CurrentScreen()
 }
 
 @Composable
@@ -54,23 +60,38 @@ fun MainScreen(
     mainViewModel: MainViewModel,
     bitacoraViewModel: BitacoraViewModel,
     tasksViewModel: TasksViewModel,
+    contingenciaViewModel: ContingenciaViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val mainUiState by mainViewModel.uiState.collectAsState()
     var currentScreen by remember { mutableStateOf<CurrentScreen>(CurrentScreen.Main) }
     var showOrgDialog by remember { mutableStateOf(false) }
+
     val msgOrgCreated = stringResource(id = R.string.msg_org_created)
+    val msgOrgDeleted = stringResource(id = R.string.msg_org_deleted)
+
+    val isHomeProfile = mainUiState.selectedOrg?.name?.trim()?.equals("Hogar", ignoreCase = true) == true
+    val orgId = mainUiState.selectedOrg?.id ?: 1L
 
     when (val screen = currentScreen) {
         is CurrentScreen.BitacoraEditor -> {
             BitacoraEditorScreen(
                 entry = screen.entry,
-                organizationId = mainUiState.selectedOrg?.id ?: 1L,
+                organizationId = orgId,
                 onSaveSuccess = { currentScreen = CurrentScreen.Main },
                 onBack = { currentScreen = CurrentScreen.Main },
                 viewModel = bitacoraViewModel,
                 tasksViewModel = tasksViewModel
+            )
+        }
+        is CurrentScreen.ContingenciaEditor -> {
+            ContingenciaEditorScreen(
+                entry = screen.entry,
+                organizationId = orgId,
+                onSaveSuccess = { currentScreen = CurrentScreen.Main },
+                onBack = { currentScreen = CurrentScreen.Main },
+                viewModel = contingenciaViewModel
             )
         }
         CurrentScreen.Main -> {
@@ -83,46 +104,69 @@ fun MainScreen(
                     )
                 },
                 bottomBar = {
-                    NavigationBar(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 3.dp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                    ) {
-                        NavigationBarItem(
-                            selected = mainUiState.selectedTab == 0,
-                            onClick = { mainViewModel.selectTab(0) },
-                            icon = {
-                                Icon(
-                                    imageVector = if (mainUiState.selectedTab == 0) Icons.AutoMirrored.Filled.Assignment else Icons.AutoMirrored.Outlined.Assignment,
-                                    contentDescription = stringResource(id = R.string.nav_bitacora)
+                    // For the dedicated "Hogar" profile, it operates purely as a pending tasks list
+                    if (!isHomeProfile) {
+                        NavigationBar(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 3.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        ) {
+                            NavigationBarItem(
+                                selected = mainUiState.selectedTab == 0,
+                                onClick = { mainViewModel.selectTab(0) },
+                                icon = {
+                                    Icon(
+                                        imageVector = if (mainUiState.selectedTab == 0) Icons.AutoMirrored.Filled.Assignment
+                                        else Icons.AutoMirrored.Outlined.Assignment,
+                                        contentDescription = stringResource(id = R.string.nav_bitacora)
+                                    )
+                                },
+                                label = { Text(text = stringResource(id = R.string.nav_bitacora)) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
                                 )
-                            },
-                            label = { Text(text = stringResource(id = R.string.nav_bitacora)) },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = MaterialTheme.colorScheme.primary,
-                                selectedTextColor = MaterialTheme.colorScheme.primary,
-                                indicatorColor = MaterialTheme.colorScheme.primaryContainer
                             )
-                        )
 
-                        NavigationBarItem(
-                            selected = mainUiState.selectedTab == 1,
-                            onClick = { mainViewModel.selectTab(1) },
-                            icon = {
-                                Icon(
-                                    imageVector = if (mainUiState.selectedTab == 1) Icons.Filled.CheckCircle else Icons.Outlined.CheckCircleOutline,
-                                    contentDescription = stringResource(id = R.string.nav_pendientes)
+                            NavigationBarItem(
+                                selected = mainUiState.selectedTab == 1,
+                                onClick = { mainViewModel.selectTab(1) },
+                                icon = {
+                                    Icon(
+                                        imageVector = if (mainUiState.selectedTab == 1) Icons.Filled.CheckCircle
+                                        else Icons.Outlined.CheckCircleOutline,
+                                        contentDescription = stringResource(id = R.string.nav_pendientes)
+                                    )
+                                },
+                                label = { Text(text = stringResource(id = R.string.nav_pendientes)) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
                                 )
-                            },
-                            label = { Text(text = stringResource(id = R.string.nav_pendientes)) },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = MaterialTheme.colorScheme.primary,
-                                selectedTextColor = MaterialTheme.colorScheme.primary,
-                                indicatorColor = MaterialTheme.colorScheme.primaryContainer
                             )
-                        )
+
+                            NavigationBarItem(
+                                selected = mainUiState.selectedTab == 2,
+                                onClick = { mainViewModel.selectTab(2) },
+                                icon = {
+                                    Icon(
+                                        imageVector = if (mainUiState.selectedTab == 2) Icons.Filled.DirectionsCar
+                                        else Icons.Outlined.DirectionsCar,
+                                        contentDescription = stringResource(id = R.string.nav_contingencia)
+                                    )
+                                },
+                                label = { Text(text = stringResource(id = R.string.nav_contingencia)) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                                )
+                            )
+                        }
                     }
                 }
             ) { paddingValues ->
@@ -132,24 +176,47 @@ fun MainScreen(
                         .padding(paddingValues)
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    val orgId = mainUiState.selectedOrg?.id ?: 1L
-                    if (mainUiState.selectedTab == 0) {
-                        BitacoraListScreen(
-                            viewModel = bitacoraViewModel,
-                            organization = mainUiState.selectedOrg,
-                            tasksViewModel = tasksViewModel,
-                            onAddEntry = {
-                                currentScreen = CurrentScreen.BitacoraEditor(null)
-                            },
-                            onEditEntry = { entry ->
-                                currentScreen = CurrentScreen.BitacoraEditor(entry)
-                            }
-                        )
-                    } else {
+                    if (isHomeProfile) {
                         TasksScreen(
                             viewModel = tasksViewModel,
-                            organizationId = orgId
+                            organizationId = orgId,
+                            isHomeProfile = true
                         )
+                    } else {
+                        when (mainUiState.selectedTab) {
+                            0 -> {
+                                BitacoraListScreen(
+                                    viewModel = bitacoraViewModel,
+                                    organization = mainUiState.selectedOrg,
+                                    tasksViewModel = tasksViewModel,
+                                    onAddEntry = {
+                                        currentScreen = CurrentScreen.BitacoraEditor(null)
+                                    },
+                                    onEditEntry = { entry ->
+                                        currentScreen = CurrentScreen.BitacoraEditor(entry)
+                                    }
+                                )
+                            }
+                            1 -> {
+                                TasksScreen(
+                                    viewModel = tasksViewModel,
+                                    organizationId = orgId,
+                                    isHomeProfile = false
+                                )
+                            }
+                            2 -> {
+                                ContingenciaListScreen(
+                                    viewModel = contingenciaViewModel,
+                                    organization = mainUiState.selectedOrg,
+                                    onAddContingencia = {
+                                        currentScreen = CurrentScreen.ContingenciaEditor(null)
+                                    },
+                                    onEditContingencia = { entry ->
+                                        currentScreen = CurrentScreen.ContingenciaEditor(entry)
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -165,8 +232,11 @@ fun MainScreen(
                 mainViewModel.createOrganization(name, desc, emoji)
                 Toast.makeText(context, msgOrgCreated, Toast.LENGTH_SHORT).show()
             },
+            onDeleteOrg = { org ->
+                mainViewModel.deleteOrganization(org)
+                Toast.makeText(context, msgOrgDeleted, Toast.LENGTH_SHORT).show()
+            },
             onDismiss = { showOrgDialog = false }
         )
     }
 }
-

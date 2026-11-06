@@ -13,7 +13,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}=== [IotasLife] Lanzador de aplicacion Android ===${NC}"
+echo -e "${BLUE}=== [Mis Notas] Lanzador de aplicacion Android ===${NC}"
 
 # 1. Configurar JAVA_HOME si es necesario
 if [ -z "$JAVA_HOME" ] || [ ! -x "$JAVA_HOME/bin/java" ]; then
