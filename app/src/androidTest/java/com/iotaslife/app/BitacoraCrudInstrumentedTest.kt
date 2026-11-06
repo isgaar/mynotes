@@ -224,4 +224,59 @@ class BitacoraCrudInstrumentedTest {
         val afterDelete = contingenciaRepo.getContingenciasForOrganization(orgId).first()
         assertTrue(afterDelete.isEmpty())
     }
+
+    @Test
+    fun testOrganizationBackup_ExportZipCreation() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val org = Organization(id = 10, name = "Backup Org", description = "Test", iconEmoji = "CORP")
+        val bitacoras = listOf(
+            BitacoraEntry(
+                id = 1,
+                organizationId = 10,
+                ticketCode = "TIK-001",
+                title = "Backup note",
+                dateEpochMillis = System.currentTimeMillis(),
+                workDone = "Test work",
+                observations = "None",
+                actionsTaken = "None",
+                status = BitacoraStatus.COMPLETED
+            )
+        )
+        val tasks = listOf(
+            TaskItem(
+                id = 1,
+                organizationId = 10,
+                title = "Backup task",
+                description = "Task desc",
+                isCompleted = false,
+                priority = TaskPriority.HIGH
+            )
+        )
+        val contingencias = listOf(
+            ContingenciaEntry(
+                id = 1,
+                organizationId = 10,
+                title = "Emergency",
+                reason = "Firewall outage",
+                solution = "Restored config",
+                dateEpochMillis = System.currentTimeMillis(),
+                taxiCost = 120.0,
+                taxiDetails = "Local ride",
+                isReimbursed = true
+            )
+        )
+
+        val zipFile = com.iotaslife.app.presentation.util.OrganizationBackupManager.exportOrganizationBackup(
+            context = context,
+            organization = org,
+            bitacoras = bitacoras,
+            tasks = tasks,
+            contingencias = contingencias
+        )
+
+        assertNotNull(zipFile)
+        assertTrue(zipFile!!.exists())
+        assertTrue(zipFile.length() > 0)
+        assertTrue(zipFile.name.endsWith(".zip"))
+    }
 }

@@ -156,6 +156,20 @@
     <string name="msg_exporting_excel">Generando archivo Excel...</string>
     <string name="msg_exported_success">Exportado a Excel exitosamente</string>
     <string name="msg_no_entries_to_export">No hay registros para exportar</string>
+    <string name="export_button_label">Exportar</string>
+    <string name="export_dialog_title">Exportar y Respaldo</string>
+    <string name="export_dialog_subtitle">Organización: %s</string>
+    <string name="export_excel_title">Exportar a Excel (.csv)</string>
+    <string name="export_excel_desc">Reporte tabular con codificación UTF-8 BOM para Microsoft Excel y Google Sheets.</string>
+    <string name="export_backup_title">Copia de Seguridad (.zip)</string>
+    <string name="export_backup_desc">Respaldo completo de la organización con bitácora, contingencias, tareas y fotos de evidencia.</string>
+    <string name="restore_backup_title">Restaurar Copia de Seguridad</string>
+    <string name="restore_backup_desc">Importar registros, tareas y fotos desde un archivo .zip de respaldo previo.</string>
+    <string name="msg_generating_backup">Generando copia de seguridad de la organización...</string>
+    <string name="msg_backup_success">Copia de seguridad generada exitosamente</string>
+    <string name="msg_restoring_backup">Restaurando copia de seguridad...</string>
+    <string name="msg_restore_success">Respaldo restaurado: %1$d notas, %2$d tareas, %3$d contingencias, %4$d fotos</string>
+    <string name="msg_restore_error">Error al procesar el archivo de copia de seguridad</string>
 
     <!-- Notion / Iotas Stats -->
     <string name="stat_total_entries">Registros</string>

@@ -5,7 +5,10 @@
 package com.iotaslife.app.presentation.contingencia
 
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,11 +40,13 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.CheckCircleOutline
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -56,6 +61,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,15 +74,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.iotaslife.app.IotasLifeApp
 import com.iotaslife.app.R
 import com.iotaslife.app.domain.model.ContingenciaEntry
 import com.iotaslife.app.domain.model.Organization
 import com.iotaslife.app.presentation.components.ConfirmDeleteDialog
 import com.iotaslife.app.presentation.components.EvidenceThumbnail
+import com.iotaslife.app.presentation.components.ExportBackupDialog
 import com.iotaslife.app.presentation.theme.NotionBlue
 import com.iotaslife.app.presentation.theme.NotionBorder
 import com.iotaslife.app.presentation.theme.NotionGreen
 import com.iotaslife.app.presentation.theme.NotionRed
+import com.iotaslife.app.presentation.util.ExcelExporter
+import com.iotaslife.app.presentation.util.OrganizationBackupManager
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -91,11 +103,98 @@ fun ContingenciaListScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
     var entryToDelete by remember { mutableStateOf<ContingenciaEntry?>(null) }
+    var showExportDialog by remember { mutableStateOf(false) }
 
     val msgDeleted = stringResource(id = R.string.msg_contingencia_deleted)
     val msgToggled = stringResource(id = R.string.msg_contingencia_reimbursed_toggled)
+    val msgNoEntries = stringResource(id = R.string.msg_no_entries_to_export)
+    val msgExporting = stringResource(id = R.string.msg_exporting_excel)
+    val msgExportSuccess = stringResource(id = R.string.msg_exported_success)
+    val msgRestoring = stringResource(id = R.string.msg_restoring_backup)
+    val msgGeneratingBackup = stringResource(id = R.string.msg_generating_backup)
+    val msgBackupSuccess = stringResource(id = R.string.msg_backup_success)
+    val msgRestoreError = stringResource(id = R.string.msg_restore_error)
+
+    val appContainer = (context.applicationContext as? IotasLifeApp)?.container
+
+    val restoreBackupLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null && organization != null && appContainer != null) {
+            Toast.makeText(context, msgRestoring, Toast.LENGTH_SHORT).show()
+            scope.launch {
+                val result = OrganizationBackupManager.restoreBackupFromUri(
+                    context = context,
+                    uri = uri,
+                    targetOrgId = organization.id,
+                    bitacoraRepo = appContainer.bitacoraRepository,
+                    taskRepo = appContainer.taskRepository,
+                    contingenciaRepo = appContainer.contingenciaRepository
+                )
+                if (result.success) {
+                    val summary = context.getString(
+                        R.string.msg_restore_success,
+                        result.bitacorasCount,
+                        result.tasksCount,
+                        result.contingenciasCount,
+                        result.imagesCount
+                    )
+                    Toast.makeText(context, summary, Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(context, result.errorMessage ?: msgRestoreError, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    fun exportToExcel() {
+        if (organization == null || appContainer == null) {
+            Toast.makeText(context, msgNoEntries, Toast.LENGTH_SHORT).show()
+            return
+        }
+        Toast.makeText(context, msgExporting, Toast.LENGTH_SHORT).show()
+        scope.launch {
+            val bitacoras = appContainer.bitacoraRepository.getEntriesForOrganization(organization.id).first()
+            if (bitacoras.isEmpty()) {
+                Toast.makeText(context, msgNoEntries, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            val file = ExcelExporter.exportBitacoraToExcel(context, organization, bitacoras)
+            if (file != null) {
+                Toast.makeText(context, msgExportSuccess, Toast.LENGTH_SHORT).show()
+                ExcelExporter.shareExcelFile(context, file, organization.name)
+            }
+        }
+    }
+
+    fun performOrganizationBackup() {
+        if (organization == null || appContainer == null) {
+            Toast.makeText(context, msgNoEntries, Toast.LENGTH_SHORT).show()
+            return
+        }
+        Toast.makeText(context, msgGeneratingBackup, Toast.LENGTH_SHORT).show()
+        scope.launch {
+            val bitacoras = appContainer.bitacoraRepository.getEntriesForOrganization(organization.id).first()
+            val tasks = appContainer.taskRepository.getTasksForOrganization(organization.id).first()
+            val contingencias = appContainer.contingenciaRepository.getContingenciasForOrganization(organization.id).first()
+
+            val file = OrganizationBackupManager.exportOrganizationBackup(
+                context = context,
+                organization = organization,
+                bitacoras = bitacoras,
+                tasks = tasks,
+                contingencias = contingencias
+            )
+
+            if (file != null) {
+                Toast.makeText(context, msgBackupSuccess, Toast.LENGTH_SHORT).show()
+                OrganizationBackupManager.shareBackupFile(context, file, organization.name)
+            }
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -105,17 +204,43 @@ fun ContingenciaListScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Title & Subtitle
-            Text(
-                text = stringResource(id = R.string.contingencia_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = stringResource(id = R.string.contingencia_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            // Title & Subtitle with Export / Backup button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(id = R.string.contingencia_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = stringResource(id = R.string.contingencia_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                FilledTonalButton(
+                    onClick = { showExportDialog = true },
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.FileDownload,
+                        contentDescription = stringResource(id = R.string.export_button_label),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(id = R.string.export_button_label),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -332,6 +457,17 @@ fun ContingenciaListScreen(
                 entryToDelete = null
             },
             onDismiss = { entryToDelete = null }
+        )
+    }
+
+    // Export and Backup Dialog
+    if (showExportDialog) {
+        ExportBackupDialog(
+            organization = organization,
+            onExportExcel = { exportToExcel() },
+            onExportBackup = { performOrganizationBackup() },
+            onRestoreBackup = { restoreBackupLauncher.launch("*/*") },
+            onDismiss = { showExportDialog = false }
         )
     }
 }

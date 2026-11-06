@@ -86,11 +86,18 @@ import com.iotaslife.app.presentation.components.QuickAddTicketTaskDialog
 import com.iotaslife.app.presentation.components.StatusChip
 import com.iotaslife.app.presentation.components.TicketTaskChecklistItem
 import com.iotaslife.app.presentation.tasks.TasksViewModel
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.iotaslife.app.IotasLifeApp
+import com.iotaslife.app.presentation.components.ExportBackupDialog
 import com.iotaslife.app.presentation.theme.NotionBlue
 import com.iotaslife.app.presentation.theme.NotionBorder
 import com.iotaslife.app.presentation.theme.NotionDivider
 import com.iotaslife.app.presentation.theme.NotionRed
 import com.iotaslife.app.presentation.util.ExcelExporter
+import com.iotaslife.app.presentation.util.OrganizationBackupManager
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Composable
@@ -117,6 +124,43 @@ fun BitacoraListScreen(
     val msgExporting = stringResource(id = R.string.msg_exporting_excel)
     val msgExportSuccess = stringResource(id = R.string.msg_exported_success)
     val msgTaskCreated = stringResource(id = R.string.msg_ticket_task_created)
+    val msgRestoring = stringResource(id = R.string.msg_restoring_backup)
+    val msgGeneratingBackup = stringResource(id = R.string.msg_generating_backup)
+    val msgBackupSuccess = stringResource(id = R.string.msg_backup_success)
+    val msgRestoreError = stringResource(id = R.string.msg_restore_error)
+
+    var showExportDialog by remember { mutableStateOf(false) }
+    val appContainer = (context.applicationContext as? IotasLifeApp)?.container
+
+    val restoreBackupLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null && organization != null && appContainer != null) {
+            Toast.makeText(context, msgRestoring, Toast.LENGTH_SHORT).show()
+            scope.launch {
+                val result = OrganizationBackupManager.restoreBackupFromUri(
+                    context = context,
+                    uri = uri,
+                    targetOrgId = organization.id,
+                    bitacoraRepo = appContainer.bitacoraRepository,
+                    taskRepo = appContainer.taskRepository,
+                    contingenciaRepo = appContainer.contingenciaRepository
+                )
+                if (result.success) {
+                    val summary = context.getString(
+                        R.string.msg_restore_success,
+                        result.bitacorasCount,
+                        result.tasksCount,
+                        result.contingenciasCount,
+                        result.imagesCount
+                    )
+                    Toast.makeText(context, summary, Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(context, result.errorMessage ?: msgRestoreError, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     fun exportToExcel() {
         val targetList = if (uiState.entries.isNotEmpty()) uiState.entries else uiState.rawEntries
@@ -134,13 +178,39 @@ fun BitacoraListScreen(
         }
     }
 
+    fun performOrganizationBackup() {
+        if (organization == null || appContainer == null) {
+            Toast.makeText(context, msgNoEntries, Toast.LENGTH_SHORT).show()
+            return
+        }
+        Toast.makeText(context, msgGeneratingBackup, Toast.LENGTH_SHORT).show()
+        scope.launch {
+            val bitacoras = appContainer.bitacoraRepository.getEntriesForOrganization(organization.id).first()
+            val tasks = appContainer.taskRepository.getTasksForOrganization(organization.id).first()
+            val contingencias = appContainer.contingenciaRepository.getContingenciasForOrganization(organization.id).first()
+
+            val file = OrganizationBackupManager.exportOrganizationBackup(
+                context = context,
+                organization = organization,
+                bitacoras = bitacoras,
+                tasks = tasks,
+                contingencias = contingencias
+            )
+
+            if (file != null) {
+                Toast.makeText(context, msgBackupSuccess, Toast.LENGTH_SHORT).show()
+                OrganizationBackupManager.shareBackupFile(context, file, organization.name)
+            }
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            // Header section with Title and Excel export button
+            // Header section with Title and Export / Backup button
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -161,18 +231,18 @@ fun BitacoraListScreen(
                 }
 
                 FilledTonalButton(
-                    onClick = { exportToExcel() },
+                    onClick = { showExportDialog = true },
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                     shape = RoundedCornerShape(10.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.FileDownload,
-                        contentDescription = stringResource(id = R.string.export_excel_action),
+                        contentDescription = stringResource(id = R.string.export_button_label),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Excel",
+                        text = stringResource(id = R.string.export_button_label),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -392,6 +462,17 @@ fun BitacoraListScreen(
                 entryForQuickTask = null
             },
             onDismiss = { entryForQuickTask = null }
+        )
+    }
+
+    // Export and Backup Dialog
+    if (showExportDialog) {
+        ExportBackupDialog(
+            organization = organization,
+            onExportExcel = { exportToExcel() },
+            onExportBackup = { performOrganizationBackup() },
+            onRestoreBackup = { restoreBackupLauncher.launch("*/*") },
+            onDismiss = { showExportDialog = false }
         )
     }
 }
